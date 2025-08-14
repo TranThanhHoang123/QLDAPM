@@ -1,0 +1,8 @@
+# vào backend
+cd backend
+
+# Khởi tạo csdl 
+python init_db.py
+
+# chạy csdl 
+python main.py
