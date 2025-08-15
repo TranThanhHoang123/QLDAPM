@@ -1,0 +1,24 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+.venv/
+
+# SQLite database
+*.sqlite
+*.sqlite3
+
+# Environment variables
+.env
+
+# VSCode settings (nếu dùng VSCode)
+.vscode/
+
+# MacOS system files
+.DS_Store
+
+# Logs
+*.log
