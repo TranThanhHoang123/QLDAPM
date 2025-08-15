@@ -10,6 +10,6 @@ def create_app(config_class="app.config.DevelopmentConfig"):
     ma.init_app(app)
 
     # register route
-    app.register_blueprint(user_handler.bp, url_prefix="/user")
+    app.register_blueprint(user_handler.bp)
 
     return app
