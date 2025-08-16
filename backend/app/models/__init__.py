@@ -2,4 +2,5 @@
 # from .order import Order
 # __all__ = ["User", "Product", "Order"]
 from .user import User
-__all__ = ["User"]
+from .category import Category
+__all__ = ["User","Category"]

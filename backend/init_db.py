@@ -1,13 +1,13 @@
 from app import create_app
 from app.extensions import db
-from app.models import User
+from app.models import User, Category
 from datetime import datetime
 from app.utils.jwt import JwtUtil
 app = create_app()
 jwt_util = JwtUtil()
-with app.app_context():
-    db.create_all()
-     # Insert dữ liệu mẫu
+
+def init_users():
+    """Khởi tạo dữ liệu mẫu cho User"""
     if not User.query.first():  # Chỉ insert nếu DB trống
         password_hash = jwt_util.hash_password("admin")
 
@@ -43,11 +43,32 @@ with app.app_context():
             created_at=datetime.utcnow(),
             updated_at=datetime.utcnow()
         )
+
         db.session.add_all([user1, user2, user3])
         db.session.commit()
 
-        print("✅ Database created & sample data inserted!")
+        print("✅ Sample users inserted!")
     else:
-        print("⚠️ Database already has data, skip inserting.")
+        print("⚠️ Users already exist, skip inserting.")
 
+
+def init_categories():
+    """Khởi tạo dữ liệu mẫu cho Category"""
+    if not Category.query.first():
+        cat1 = Category(name="Hòa nhạc", description="Các sự kiện hòa nhạc âm nhạc")
+        cat2 = Category(name="Hội thảo", description="Các sự kiện hội thảo, workshop")
+        cat3 = Category(name="Thể thao", description="Các sự kiện thể thao, giải đấu")
+
+        db.session.add_all([cat1, cat2, cat3])
+        db.session.commit()
+
+        print("✅ Sample categories inserted!")
+    else:
+        print("⚠️ Categories already exist, skip inserting.")
+
+
+with app.app_context():
+    db.create_all()
+    init_users()
+    init_categories()
     print("✅ Database created successfully!")

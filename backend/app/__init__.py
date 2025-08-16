@@ -1,6 +1,6 @@
 from flask import Flask
 from app.extensions import db, ma
-from app.handlers import user_handler
+from app.handlers import user_handler, category_handler
 
 def create_app(config_class="app.config.DevelopmentConfig"):
     app = Flask(__name__)
@@ -11,5 +11,6 @@ def create_app(config_class="app.config.DevelopmentConfig"):
 
     # register route
     app.register_blueprint(user_handler.bp)
+    app.register_blueprint(category_handler.bp)
 
     return app
