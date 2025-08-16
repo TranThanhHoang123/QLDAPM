@@ -3,4 +3,5 @@
 # __all__ = ["User", "Product", "Order"]
 from .user import User
 from .category import Category
-__all__ = ["User","Category"]
+from .event import Event
+__all__ = ["User","Category","Event"]

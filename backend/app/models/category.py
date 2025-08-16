@@ -6,3 +6,9 @@ class Category(BaseModel):
 
     name = db.Column(db.String(100), nullable=False, unique=True)
     description = db.Column(db.Text)
+    # Quan hệ ngược
+    events = db.relationship(
+        "Event",
+        back_populates="category",
+        cascade="all, delete-orphan"
+    )
