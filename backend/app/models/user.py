@@ -15,3 +15,6 @@ class User(BaseModel):
     name = db.Column(db.String(100), nullable=True)
     password = db.Column(db.String(255), nullable=False)
     role = db.Column(db.Enum(UserRole), default=UserRole.user, nullable=False)
+
+    # Quan hệ ngược
+    tickets = db.relationship("Ticket", back_populates="user")

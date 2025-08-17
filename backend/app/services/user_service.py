@@ -1,5 +1,5 @@
 from app.extensions import db
-from app.models.user import User
+from app.models.user import User, UserRole
 from datetime import datetime, timedelta
 from app.utils.jwt import JwtUtil
 class UserService:
@@ -34,7 +34,7 @@ class UserService:
         # Hash password nếu có
         if "password" in data and data["password"]:
             data["password"] = self.jwt_util.hash_password(data["password"])
-        data["role"] = "manager"
+        data["role"] = UserRole.manager
         user = User(**data)
         db.session.add(user)
         db.session.commit()
@@ -46,7 +46,7 @@ class UserService:
             data["password"] = self.jwt_util.hash_password(data["password"])
 
         # Role mặc định cho người đăng ký
-        data["role"] = "user"
+        data["role"] = UserRole.user
 
         user = User(**data)
         db.session.add(user)

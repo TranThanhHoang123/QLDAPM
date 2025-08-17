@@ -42,7 +42,7 @@ class EventService:
 
     def get_event(self, event_id):
         return Event.query.get(event_id)
-    
+
     def create_event(self, **data):
         # Convert string -> datetime nếu truyền vào là string
         if isinstance(data.get("start_time"), str):
@@ -66,7 +66,6 @@ class EventService:
         db.session.delete(event)
         db.session.commit()
         return True
-
 
     def update_event(self, event_id, **data):
         event = Event.query.get(event_id)
