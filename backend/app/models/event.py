@@ -9,7 +9,7 @@ class Event(BaseModel):
     start_time = db.Column(db.DateTime, nullable=False)
     end_time = db.Column(db.DateTime, nullable=False)
     image = db.Column(db.Text,nullable=False)
-
+    
     # Relationship
     category_id = db.Column(
         db.BigInteger,
@@ -18,3 +18,4 @@ class Event(BaseModel):
     )
     # Quan hệ ngược lại
     category = db.relationship("Category", back_populates="events")
+    tickets = db.relationship("Ticket", back_populates="event")

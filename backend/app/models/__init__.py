@@ -4,4 +4,5 @@
 from .user import User
 from .category import Category
 from .event import Event
-__all__ = ["User","Category","Event"]
+from .ticket import Ticket
+__all__ = ["User","Category","Event","Ticket"]
