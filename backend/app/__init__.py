@@ -7,6 +7,7 @@ from app.handlers import (
     event_handler,
     ticket_handler,
     order_handler,
+    cart_handler,
     )
 from flask_cors import CORS
 def create_app(config_class="app.config.DevelopmentConfig"):
@@ -26,5 +27,6 @@ def create_app(config_class="app.config.DevelopmentConfig"):
     app.register_blueprint(event_handler.bp)
     app.register_blueprint(ticket_handler.bp)
     app.register_blueprint(order_handler.bp)
+    app.register_blueprint(cart_handler.bp)
 
     return app

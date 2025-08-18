@@ -18,3 +18,4 @@ class User(BaseModel):
 
     # Quan hệ ngược
     tickets = db.relationship("Ticket", back_populates="user")
+    cart = db.relationship("Cart", back_populates="user", uselist=False)
