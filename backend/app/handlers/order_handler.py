@@ -5,6 +5,7 @@ from datetime import datetime
 from app.utils.vnpay import vnpay
 from app.utils.momo import create_payment
 from app.utils.jwt import JwtUtil
+from app.utils.smtp import send_payment_success_email, build_payment_success_context
 from app.schemas.order import (
     OrderCreateSchema,
     OrderListSchema,
@@ -17,7 +18,7 @@ jwt_util = JwtUtil()
 # Schema instances
 order_create_schema = OrderCreateSchema()
 order_detail_schema = OrderDetailSchema()
-order_list_schema = OrderListSchema()
+order_list_schema = OrderListSchema(many=True)
 
 VNPAY_URL = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html"
 VNPAY_TMNCODE = "LZPLRB1E"
@@ -104,6 +105,12 @@ def vnpay_return():
 
     if transaction_status == "00":  # Thanh toán thành công
         order, error = order_service.payment_success(order_id)
+        # Chuyển order sang dạng detail
+        order_data = order_detail_schema.dump(order)
+
+        # mapping sang context
+        context = build_payment_success_context(order_data)
+        send_payment_success_email(order_data["user"]["email"], context)
     else:
         order, error = order_service.payment_failed(order_id)
 
@@ -117,9 +124,7 @@ def vnpay_return():
 # 2.2 Xử lý thanh toán momo
 @bp.route("/momo/payment_return", methods=["GET"])
 def momo_return():
-    print("/momo/payment_return")
     query_params = request.args.to_dict()
-    print("query_params", query_params)
 
     order_id_raw = query_params.get("orderId")
     result_code = query_params.get("resultCode")  # 0 = success
@@ -132,6 +137,12 @@ def momo_return():
     if result_code == "0":
         # Thanh toán thành công
         order, error = order_service.payment_success(order_id)
+        # Chuyển order sang dạng detail
+        order_data = order_detail_schema.dump(order)
+
+        # mapping sang context
+        context = build_payment_success_context(order_data)
+        send_payment_success_email(order_data["user"]["email"], context)
     else:
         # Thanh toán thất bại
         order, error = order_service.payment_failed(order_id)

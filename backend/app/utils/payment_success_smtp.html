@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Xác nhận thanh toán đơn hàng #{{order_id}}</title>
+  </head>
+  <body style="margin:0; padding:0; background:#f5f7fb;">
+    <center style="width:100%; background:#f5f7fb;">
+      <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+        <tr>
+          <td align="center" style="padding:24px 12px;">
+            <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="width:600px; max-width:600px; background:#ffffff; border-radius:12px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+              <tr>
+                <td style="padding:24px 24px 8px 24px; background:#0f172a; color:#ffffff;">
+                  <div style="font-size:22px; font-weight:700;">Xác nhận thanh toán</div>
+                  <div style="font-size:14px; opacity:0.9; margin-top:6px;">Đơn hàng #{{order_id}} • {{status}}</div>
+                </td>
+              </tr>
+
+              <tr>
+                <td style="padding:16px 24px; background:#0f172a; color:#cbd5e1;">
+                  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                    <tr>
+                      <td style="padding:8px 0; font-size:14px;">Khách hàng:</td>
+                      <td style="padding:8px 0; font-size:14px; text-align:right; color:#ffffff; font-weight:600;">{{customer_name}} ({{customer_email}})</td>
+                    </tr>
+                    <tr>
+                      <td style="padding:8px 0; font-size:14px;">Phương thức thanh toán:</td>
+                      <td style="padding:8px 0; font-size:14px; text-align:right; color:#ffffff; font-weight:600;">{{payment_method}}</td>
+                    </tr>
+                    <tr>
+                      <td style="padding:8px 0; font-size:14px;">Tổng tiền đã thanh toán:</td>
+                      <td style="padding:8px 0; font-size:18px; text-align:right; color:#34d399; font-weight:700;">{{total_amount_vnd}}</td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+
+              <tr>
+                <td style="padding:24px;">
+                  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border-collapse:collapse;">
+                    <thead>
+                      <tr>
+                        <th align="center" style="padding:12px; font-size:12px; text-transform:uppercase; letter-spacing:0.5px; color:#64748b; border-bottom:2px solid #e2e8f0;">#</th>
+                        <th align="left" style="padding:12px; font-size:12px; text-transform:uppercase; letter-spacing:0.5px; color:#64748b; border-bottom:2px solid #e2e8f0;">Sản phẩm / Sự kiện</th>
+                        <th align="left" style="padding:12px; font-size:12px; text-transform:uppercase; letter-spacing:0.5px; color:#64748b; border-bottom:2px solid #e2e8f0;">Giá</th>
+                        <th align="center" style="padding:12px; font-size:12px; text-transform:uppercase; letter-spacing:0.5px; color:#64748b; border-bottom:2px solid #e2e8f0;">Trạng thái vé</th>
+                        <th align="center" style="padding:12px; font-size:12px; text-transform:uppercase; letter-spacing:0.5px; color:#64748b; border-bottom:2px solid #e2e8f0;">Ảnh</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Lặp cho từng item -->
+                        {% for item in items %}
+                        <tr>
+                            <td style="padding:12px; font-size:14px; border-bottom:1px solid #eee; text-align:center;">
+                            {{ loop.index }}
+                            </td>
+                            <td style="padding:12px; font-size:14px; border-bottom:1px solid #eee;">
+                            <div style="font-weight:600">{{ item.event_title }}</div>
+                            <div style="margin-top:4px;">Thời gian: {{ item.event_start }} → {{ item.event_end }}</div>
+                            <div>Địa điểm: {{ item.event_location }}</div>
+                            <div>Loại vé: {{ item.ticket_type }}</div>
+                            </td>
+                            <td style="padding:12px; font-size:14px; border-bottom:1px solid #eee; white-space:nowrap;">
+                            {{ item.price_vnd }}
+                            </td>
+                            <td style="padding:12px; font-size:14px; border-bottom:1px solid #eee; text-align:center;">
+                            {{ item.ticket_status }}
+                            </td>
+                            <td style="padding:12px; font-size:14px; border-bottom:1px solid #eee; text-align:center;">
+                            <img src="{{ item.event_image }}" alt="Ảnh sự kiện" width="72" style="display:block; border-radius:8px;" />
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                  </table>
+                </td>
+              </tr>
+
+              <tr>
+                <td style="padding:0 24px 24px 24px;">
+                  <div style="padding:16px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; font-size:13px; color:#0f172a;">
+                    <div style="font-weight:600; margin-bottom:6px;">Lưu ý</div>
+                    <div>Vé của bạn đang ở trạng thái <b>{{ticket_status_overall}}</b>. Bạn sẽ nhận được vé điện tử (PDF/QR) qua email này khi hệ thống phát hành xong.</div>
+                  </div>
+                </td>
+              </tr>
+
+              <tr>
+                <td style="padding:20px; text-align:center; font-size:12px; color:#64748b; border-top:1px solid #e5e7eb;">
+                  © {{date}} Ticketing Co. • Đây là email tự động, vui lòng không trả lời.
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </center>
+  </body>
+</html>
