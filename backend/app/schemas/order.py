@@ -1,12 +1,14 @@
 from app.extensions import ma
 from app.models.order import Order, OrderItem
+from app.schemas.user import UserListSchema
+from app.schemas.ticket import TicketDetailSchema
 from marshmallow import fields
 
 # Base Schema cho OrderItem
-class OrderItemSchema(ma.SQLAlchemyAutoSchema):
+class OrderItemListSchema(ma.SQLAlchemyAutoSchema):
     ticket_id = fields.Int()
     price = fields.Float()
-
+    ticket = fields.Nested(TicketDetailSchema)
     class Meta:
         model = OrderItem
         load_instance = True
@@ -16,7 +18,7 @@ class OrderItemSchema(ma.SQLAlchemyAutoSchema):
 
 # Base Schema cho Order
 class OrderBaseSchema(ma.SQLAlchemyAutoSchema):
-    items = fields.Nested(OrderItemSchema, many=True)
+    items = fields.Nested(OrderItemListSchema, many=True)
 
     class Meta:
         model = Order
@@ -32,6 +34,7 @@ class OrderCreateSchema(ma.Schema):
 
 # Output schema chi tiết order
 class OrderDetailSchema(OrderBaseSchema):
+    user = fields.Nested(UserListSchema)
     class Meta(OrderBaseSchema.Meta):
         exclude = ()
 

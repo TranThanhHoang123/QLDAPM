@@ -1,7 +1,7 @@
 from app.extensions import db
 from datetime import datetime
-
-class Order(db.Model):
+from .basemodel import BaseModel
+class Order(BaseModel):
     __tablename__ = "orders"
 
     id = db.Column(db.Integer, primary_key=True)
