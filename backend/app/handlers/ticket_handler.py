@@ -20,7 +20,7 @@ ticket_detail_schema = TicketDetailSchema()
 
 # 1. Lấy danh sách vé (có filter + phân trang)
 @bp.route("/", methods=["GET"])
-@my_permission(["user"])
+@my_permission(["manager"])
 def get_tickets():
     params = request.args.to_dict()
     pagination = ticket_service.get_tickets(**params)
@@ -35,8 +35,8 @@ def get_tickets():
 
 # 2. Lấy chi tiết vé
 @bp.route("/<int:ticket_id>", methods=["GET"])
-@my_permission(["user"])
-def get_ticket(ticket_id):
+@my_permission(["manager"])
+def get_ticket_for_manager(ticket_id):
     ticket = ticket_service.get_ticket(ticket_id)
     if not ticket:
         return jsonify({"message": "Ticket not found"}), 404

@@ -77,13 +77,13 @@ class TicketService:
 
     def check_and_reserve_tickets(self, event_id, ticket_type, quantity, user_id):
         """
-        Kiểm tra đủ vé AVAILABLE không, nếu có thì chuyển sang RESERVED
+        Kiểm tra số lượng vé AVAILABLE và giữ chỗ (RESERVED) cho user
         """
         tickets = (
             Ticket.query
-            .filter_by(event_id=event_id, type=ticket_type, status="AVAILABLE")
+            .filter_by(event_id=event_id, type=ticket_type, status=TicketStatus.AVAILABLE)
             .limit(quantity)
-            .with_for_update() # lock rows
+            .with_for_update()  # lock để tránh race condition
             .all()
         )
 
@@ -96,9 +96,9 @@ class TicketService:
                 t.user_id = user_id  # giữ chỗ cho user
             db.session.commit()
             return tickets, None
-        except IntegrityError:
+        except IntegrityError as e:
             db.session.rollback()
-            return None, "Database error while reserving tickets"
+            return None, f"Database error while reserving tickets: {str(e)}"
 
     def confirm_tickets(self, ticket_ids):
         """

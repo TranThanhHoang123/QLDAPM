@@ -20,7 +20,6 @@ category_detail_schema = CategoryDetailSchema()
 
 # 1. Lấy danh sách category
 @bp.route("/", methods=["GET"])
-@my_permission(["user"])
 def get_categories():
     params = request.args.to_dict()
     pagination = category_service.get_categories(**params)
@@ -35,7 +34,6 @@ def get_categories():
 
 # 2. Lấy chi tiết category
 @bp.route("/<int:category_id>", methods=["GET"])
-@my_permission(["user"])
 def get_category(category_id):
     category = category_service.get_category(category_id)
     if not category:
