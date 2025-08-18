@@ -21,7 +21,6 @@ event_detail_schema = EventDetailSchema()
 
 # 1. Lấy danh sách event (có tìm kiếm, phân trang)
 @bp.route("/", methods=["GET"])
-@my_permission(["user"])
 def get_events():
     params = request.args.to_dict()
     pagination = event_service.get_events(**params)
@@ -36,7 +35,6 @@ def get_events():
 
 # 2. Lấy chi tiết event
 @bp.route("/<int:event_id>", methods=["GET"])
-@my_permission(["user"])
 def get_event(event_id):
     event = event_service.get_event(event_id)
     if not event:

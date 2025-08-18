@@ -12,11 +12,7 @@ class Order(db.Model):
         default="PENDING"  # PENDING → PAID / FAILED / CANCELLED
     )
     payment_method = db.Column(db.String(20))  # momo / vnpay / cash
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(
-        db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
-    )
-
+    total_amount = db.Column(db.Numeric(15, 2), default=0)
     # Quan hệ
     user = db.relationship("User", backref="orders")
     items = db.relationship("OrderItem", backref="order", cascade="all, delete-orphan")

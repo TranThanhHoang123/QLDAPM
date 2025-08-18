@@ -39,7 +39,6 @@ def my_permission(required_roles):
                 # Lấy bậc role cao nhất mà API yêu cầu
                 min_required_level = max(ROLE_HIERARCHY[r] for r in required_roles)
                 user_level = ROLE_HIERARCHY.get(user_role, 0)
-
                 if user_level < min_required_level:
                     return jsonify({"message": "Permission denied"}), 403
 
