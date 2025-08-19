@@ -1,6 +1,7 @@
 from app.extensions import db
 from app.models.ticket import Ticket, TicketType, TicketStatus
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy import func
 class TicketService:
     def __init__(self):
         pass
@@ -150,3 +151,47 @@ class TicketService:
         ticket.status = TicketStatus.CANCELLED
         db.session.commit()
         return ticket
+
+    def count_sold_by_month(self, year: int):
+        """Số lượng vé bán (SOLD/USED) theo tháng"""
+        data = (
+            db.session.query(
+                func.extract("month", Ticket.created_at).label("month"),
+                func.count(Ticket.id).label("count")
+            )
+            .filter(func.extract("year", Ticket.created_at) == year)
+            .filter(Ticket.status.in_([TicketStatus.SOLD, TicketStatus.USED]))
+            .group_by(func.extract("month", Ticket.created_at))
+            .order_by("month")
+            .all()
+        )
+        return [{"month": int(month), "count": count} for month, count in data]
+
+    def count_sold_by_quarter(self, year: int):
+        """Số lượng vé bán (SOLD/USED) theo quý"""
+        data = (
+            db.session.query(
+                func.ceil(func.extract("month", Ticket.created_at) / 3).label("quarter"),
+                func.count(Ticket.id).label("count")
+            )
+            .filter(func.extract("year", Ticket.created_at) == year)
+            .filter(Ticket.status.in_([TicketStatus.SOLD, TicketStatus.USED]))
+            .group_by("quarter")
+            .order_by("quarter")
+            .all()
+        )
+        return [{"quarter": int(q), "count": count} for q, count in data]
+
+    def count_sold_by_year(self):
+        """Số lượng vé bán (SOLD/USED) theo năm"""
+        data = (
+            db.session.query(
+                func.extract("year", Ticket.created_at).label("year"),
+                func.count(Ticket.id).label("count")
+            )
+            .filter(Ticket.status.in_([TicketStatus.SOLD, TicketStatus.USED]))
+            .group_by(func.extract("year", Ticket.created_at))
+            .order_by("year")
+            .all()
+        )
+        return [{"year": int(year), "count": count} for year, count in data]

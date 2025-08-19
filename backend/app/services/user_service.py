@@ -1,4 +1,5 @@
 from app.extensions import db
+from sqlalchemy import func
 from app.models.user import User, UserRole
 from datetime import datetime, timedelta
 from app.utils.jwt import JwtUtil
@@ -124,3 +125,47 @@ class UserService:
         db.session.commit()
 
         return {"message": "Password changed successfully"}, None
+    
+    def count_by_month(self, year: int):
+        """Số lượng khách hàng (role=user) đăng ký theo tháng"""
+        data = (
+            db.session.query(
+                func.extract("month", User.created_at).label("month"),
+                func.count(User.id).label("count")
+            )
+            .filter(func.extract("year", User.created_at) == year)
+            .filter(User.role == UserRole.user)   # 🔥 chỉ lấy khách hàng
+            .group_by(func.extract("month", User.created_at))
+            .order_by("month")
+            .all()
+        )
+        return [{"month": int(month), "count": count} for month, count in data]
+
+    def count_by_quarter(self, year: int):
+        """Số lượng khách hàng (role=user) đăng ký theo quý"""
+        data = (
+            db.session.query(
+                func.ceil(func.extract("month", User.created_at) / 3).label("quarter"),
+                func.count(User.id).label("count")
+            )
+            .filter(func.extract("year", User.created_at) == year)
+            .filter(User.role == UserRole.user)   # 🔥 lọc khách hàng
+            .group_by("quarter")
+            .order_by("quarter")
+            .all()
+        )
+        return [{"quarter": int(q), "count": count} for q, count in data]
+
+    def count_by_year(self):
+        """Số lượng khách hàng (role=user) đăng ký theo năm"""
+        data = (
+            db.session.query(
+                func.extract("year", User.created_at).label("year"),
+                func.count(User.id).label("count")
+            )
+            .filter(User.role == UserRole.user)   # 🔥 lọc khách hàng
+            .group_by(func.extract("year", User.created_at))
+            .order_by("year")
+            .all()
+        )
+        return [{"year": int(year), "count": count} for year, count in data]

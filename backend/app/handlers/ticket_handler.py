@@ -93,3 +93,16 @@ def create_tickets():
     tickets = ticket_service.create_tickets(event_id, ticket_type, price, quantity)
 
     return ticket_list_schema.dump(tickets), 201
+
+
+@bp.route("/stats/monthly/<int:year>")
+def stats_ticket_monthly(year):
+    return jsonify(ticket_service.count_sold_by_month(year))
+
+@bp.route("/stats/quarterly/<int:year>")
+def stats_ticket_quarterly(year):
+    return jsonify(ticket_service.count_sold_by_quarter(year))
+
+@bp.route("/stats/yearly")
+def stats_ticket_yearly():
+    return jsonify(ticket_service.count_sold_by_year())

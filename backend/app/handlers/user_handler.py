@@ -120,3 +120,15 @@ def delete_user(user_id):
     if not success:
         return jsonify({"message": "User not found"}), 404
     return jsonify({"message": "User deleted successfully"})
+
+@bp.route("/stats/monthly/<int:year>")
+def stats_user_monthly(year):
+    return jsonify(user_service.count_by_month(year))
+
+@bp.route("/stats/quarterly/<int:year>")
+def stats_user_quarterly(year):
+    return jsonify(user_service.count_by_quarter(year))
+
+@bp.route("/stats/yearly")
+def stats_user_yearly():
+    return jsonify(user_service.count_by_year())
