@@ -40,11 +40,14 @@ def register():
     if errors:
         return jsonify(errors), 400
 
-    user = user_service.register(**data)
+    try:
+        user = user_service.register(**data)
+    except ValueError as e:
+        return jsonify({"message": str(e)}), 400
     return user_detail_schema.dump(user), 201
 
 @bp.route("/", methods=["GET"])
-@my_permission(["manager"])
+@my_permission("manager")
 def get_users():
     params = request.args.to_dict()
     pagination = user_service.get_users(**params)
@@ -57,18 +60,21 @@ def get_users():
     })
 
 @bp.route("/", methods=["POST"])
-@my_permission(["admin"])
+@my_permission("admin")
 def create_user():
     data = request.get_json()
     errors = user_create_schema.validate(data)
     if errors:
         return jsonify(errors), 400
 
-    user = user_service.create_user(**data)
+    try:
+        user = user_service.create_user(**data)
+    except ValueError as e:
+        return jsonify({"message": str(e)}), 400
     return user_detail_schema.dump(user), 201
 
 @bp.route("/me", methods=["PUT"])
-@my_permission(["user"])
+@my_permission("user")
 def update_user():
     data = request.get_json()
     errors = user_update_schema.validate(data, partial=True)
@@ -85,13 +91,13 @@ def update_user():
     return user_detail_schema.dump(user), 200
 
 @bp.route("/me", methods=["GET"])
-@my_permission(["user"])
+@my_permission("user")
 def get_profile():
     user = g.current_user
     return user_detail_schema.dump(user), 200
 
 @bp.route("/me/change-password", methods=["PUT"])
-@my_permission(["user"])
+@my_permission("user")
 def change_password():
     # Validate request body
     data = request.get_json()
@@ -114,7 +120,7 @@ def change_password():
     return jsonify(result), 200
 
 @bp.route("/<int:user_id>", methods=["DELETE"])
-@my_permission(["admin"])
+@my_permission("admin")
 def delete_user(user_id):
     success = user_service.delete_user(user_id)
     if not success:
@@ -122,13 +128,16 @@ def delete_user(user_id):
     return jsonify({"message": "User deleted successfully"})
 
 @bp.route("/stats/monthly/<int:year>")
+@my_permission("manager")
 def stats_user_monthly(year):
     return jsonify(user_service.count_by_month(year))
 
 @bp.route("/stats/quarterly/<int:year>")
+@my_permission("manager")
 def stats_user_quarterly(year):
     return jsonify(user_service.count_by_quarter(year))
 
 @bp.route("/stats/yearly")
+@my_permission("manager")
 def stats_user_yearly():
     return jsonify(user_service.count_by_year())

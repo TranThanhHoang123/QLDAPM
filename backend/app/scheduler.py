@@ -1,7 +1,7 @@
 from apscheduler.schedulers.background import BackgroundScheduler
 from app.extensions import db
-from app.models.ticket import Ticket, TicketStatus
-from app.models.order import Order
+from app.models.ticket import TicketStatus
+from app.models.order import Order, OrderStatus
 from datetime import datetime, timedelta
 
 def release_expired_orders(app):
@@ -10,7 +10,7 @@ def release_expired_orders(app):
             now = datetime.utcnow()
             # Tìm các order pending quá 15 phút
             expired_orders = Order.query.filter(
-                Order.status == "PENDING",
+                Order.status == OrderStatus.PENDING,
                 Order.updated_at < now - timedelta(minutes=15)
             ).all()
 
@@ -20,7 +20,7 @@ def release_expired_orders(app):
                 # print(f"  -> Cancelling Order ID: {order.id}, User: {order.user_id}, "
                 #       f"Total: {order.total_amount}, Updated At: {order.updated_at}")
 
-                order.status = "CANCELLED"
+                order.status = OrderStatus.CANCELLED
 
                 # Giải phóng vé
                 for item in order.items:
@@ -37,7 +37,6 @@ def release_expired_orders(app):
                 print(f"[{datetime.utcnow()}] No expired orders to release")
 
         except Exception as e:
-            db.session.rollback()
             print("Error in release_expired_orders:", e)
 
 def init_scheduler(app):
@@ -46,7 +45,7 @@ def init_scheduler(app):
     scheduler.add_job(
         func=lambda: release_expired_orders(app),
         trigger="interval",
-        minutes=10,
+        minutes=5,
         id="release_orders",
         replace_existing=True,
     )

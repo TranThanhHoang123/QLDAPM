@@ -9,14 +9,21 @@ class CartService:
         """Lấy giỏ hàng của user"""
         return Cart.query.filter_by(user_id=user_id).first()
 
-    def add_item(self, user_id: int, event_id: int, ticket_type: str, quantity: int):
+    def add_item(self, **data):
         """Thêm item vào giỏ hàng (tạo cart nếu chưa có)"""
-        if quantity <= 0:
+        user_id = data.get("user_id")
+        event_id = data.get("event_id")
+        ticket_type = data.get("ticket_type")
+        quantity = data.get("quantity")
+
+        if not user_id or not event_id or not ticket_type:
+            raise ValueError("Missing required fields: user_id, event_id, ticket_type")
+        if quantity is None or quantity <= 0:
             raise ValueError("Quantity must be greater than 0")
 
         # Chuyển string -> Enum
         try:
-            ticket_enum = TicketType[ticket_type]  # "VIP" -> TicketType.VIP
+            ticket_enum = TicketType[ticket_type]
         except KeyError:
             raise ValueError(f"Invalid ticket_type: {ticket_type}")
 
@@ -26,7 +33,7 @@ class CartService:
             db.session.add(cart)
             db.session.flush()  # để có cart.id
 
-        # Kiểm tra nếu item cùng event_id + ticket_type đã tồn tại thì update quantity
+        # Kiểm tra item đã tồn tại
         existing_item = CartItem.query.filter_by(
             cart_id=cart.id,
             event_id=event_id,
@@ -48,11 +55,14 @@ class CartService:
             db.session.commit()
             return cart
         except IntegrityError as e:
-            db.session.rollback()
-            raise Exception(f"Failed to add item to cart: {str(e)}")
+            raise ValueError(f"Failed to add item: {str(e)}")
 
-    def update_item(self, user_id: int, item_id: int, quantity: int):
+    def update_item(self, **data):
         """Cập nhật số lượng item (nếu =0 thì xóa)"""
+        user_id = data.get("user_id")
+        item_id = data.get("item_id")
+        quantity = data.get("quantity")
+
         cart = self.get_cart(user_id)
         if not cart:
             raise ValueError("Cart not found")
@@ -70,11 +80,16 @@ class CartService:
             db.session.commit()
             return cart
         except Exception as e:
-            db.session.rollback()
             raise Exception(f"Failed to update item: {str(e)}")
 
-    def remove_item(self, user_id: int, item_id: int):
+    def remove_item(self, **data):
         """Xóa 1 item khỏi giỏ hàng"""
+        user_id = data.get("user_id")
+        item_id = data.get("item_id")
+
+        if not user_id or not item_id:
+            raise ValueError("Missing required fields: user_id, item_id")
+
         cart = self.get_cart(user_id)
         if not cart:
             raise ValueError("Cart not found")
@@ -88,5 +103,4 @@ class CartService:
             db.session.commit()
             return cart
         except Exception as e:
-            db.session.rollback()
             raise Exception(f"Failed to remove item: {str(e)}")

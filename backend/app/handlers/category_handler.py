@@ -43,7 +43,7 @@ def get_category(category_id):
 
 # 3. Tạo category
 @bp.route("/", methods=["POST"])
-@my_permission(["admin"])
+@my_permission("manager")
 def create_category():
     data = request.get_json()
     errors = category_create_schema.validate(data)
@@ -60,7 +60,7 @@ def create_category():
 
 # 4. Cập nhật category
 @bp.route("/<int:category_id>", methods=["PUT"])
-@my_permission(["admin"])
+@my_permission("manager")
 def update_category(category_id):
     data = request.get_json()
     errors = category_update_schema.validate(data, partial=True)
@@ -80,7 +80,7 @@ def update_category(category_id):
 
 # 5. Xóa category
 @bp.route("/<int:category_id>", methods=["DELETE"])
-@my_permission(["admin"])
+@my_permission("admin")
 def delete_category(category_id):
     try:
         category_service.delete_category(category_id)

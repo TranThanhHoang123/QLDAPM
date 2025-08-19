@@ -3,6 +3,7 @@ from sqlalchemy import func
 from app.models.user import User, UserRole
 from datetime import datetime, timedelta
 from app.utils.jwt import JwtUtil
+from sqlalchemy.exc import IntegrityError
 class UserService:
     def __init__(self):
         self.jwt_util = JwtUtil()
@@ -10,7 +11,7 @@ class UserService:
     def get_users(self, **kwargs):
         query = User.query
 
-        # Lọc đặc biệt
+        # Lọc
         if "username" in kwargs and kwargs["username"]:
             query = query.filter(User.username.ilike(f"%{kwargs['username']}%"))
 
@@ -32,37 +33,51 @@ class UserService:
         return pagination
 
     def create_user(self, **data):
-        # Hash password nếu có
-        if "password" in data and data["password"]:
-            data["password"] = self.jwt_util.hash_password(data["password"])
+        # Hash password
+        data["password"] = self.jwt_util.hash_password(data["password"])
         data["role"] = UserRole.manager
         user = User(**data)
         db.session.add(user)
-        db.session.commit()
-        return user
+        try:
+            db.session.commit()
+            return user
+        except IntegrityError as e:
+            # Lấy thông tin chi tiết từ lỗi
+            msg = str(e.orig).lower()
+
+            if "username" in msg:
+                raise ValueError("Username already exists")
+            elif "email" in msg:
+                raise ValueError("Email already exists")
     
-    def register(self, **data):
+    def register(self, **data):        
         # Hash password nếu có
-        if "password" in data and data["password"]:
-            data["password"] = self.jwt_util.hash_password(data["password"])
+        data["password"] = self.jwt_util.hash_password(data["password"])
 
         # Role mặc định cho người đăng ký
         data["role"] = UserRole.user
 
         user = User(**data)
         db.session.add(user)
-        db.session.commit()
-        return user
+        try:
+            db.session.commit()
+            return user
+        except IntegrityError as e:
+            # Lấy thông tin chi tiết từ lỗi
+            msg = str(e.orig).lower()
+
+            if "username" in msg:
+                raise ValueError("Username already exists")
+            elif "email" in msg:
+                raise ValueError("Email already exists")
 
     def update_user(self, user_id, **data):
         user = User.query.get(user_id)
         if not user:
             return None
 
-        # Không cho update mấy field này
-        disallowed = {"id", "created_at", "updated_at", "password"}
         for field, value in data.items():
-            if field not in disallowed and hasattr(user, field) and value is not None:
+            if hasattr(user, field) and value is not None:
                 setattr(user, field, value)
 
         db.session.commit()
@@ -81,7 +96,7 @@ class UserService:
         db.session.commit()
         return True
 
-    def login(self, username: str, password: str):
+    def login(self, username, password):
         # 1. Tìm user theo username
         user = User.query.filter_by(username=username).first()
         if not user:
@@ -106,7 +121,7 @@ class UserService:
             }
         }, None
     
-    def change_password(self, user_id: int, old_password: str, new_password: str):
+    def change_password(self, user_id, old_password, new_password):
         # 1. Tìm user theo ID
         user = User.query.get(user_id)
         if not user:
@@ -126,7 +141,7 @@ class UserService:
 
         return {"message": "Password changed successfully"}, None
     
-    def count_by_month(self, year: int):
+    def count_by_month(self, year):
         """Số lượng khách hàng (role=user) đăng ký theo tháng"""
         data = (
             db.session.query(
@@ -134,14 +149,14 @@ class UserService:
                 func.count(User.id).label("count")
             )
             .filter(func.extract("year", User.created_at) == year)
-            .filter(User.role == UserRole.user)   # 🔥 chỉ lấy khách hàng
+            .filter(User.role == UserRole.user)   # chỉ lấy khách hàng
             .group_by(func.extract("month", User.created_at))
             .order_by("month")
             .all()
         )
         return [{"month": int(month), "count": count} for month, count in data]
 
-    def count_by_quarter(self, year: int):
+    def count_by_quarter(self, year):
         """Số lượng khách hàng (role=user) đăng ký theo quý"""
         data = (
             db.session.query(
@@ -149,7 +164,7 @@ class UserService:
                 func.count(User.id).label("count")
             )
             .filter(func.extract("year", User.created_at) == year)
-            .filter(User.role == UserRole.user)   # 🔥 lọc khách hàng
+            .filter(User.role == UserRole.user)   # lọc khách hàng
             .group_by("quarter")
             .order_by("quarter")
             .all()
@@ -163,7 +178,7 @@ class UserService:
                 func.extract("year", User.created_at).label("year"),
                 func.count(User.id).label("count")
             )
-            .filter(User.role == UserRole.user)   # 🔥 lọc khách hàng
+            .filter(User.role == UserRole.user)   # lọc khách hàng
             .group_by(func.extract("year", User.created_at))
             .order_by("year")
             .all()

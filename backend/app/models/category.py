@@ -9,6 +9,5 @@ class Category(BaseModel):
     # Quan hệ ngược
     events = db.relationship(
         "Event",
-        back_populates="category",
-        cascade="all, delete-orphan"
+        back_populates="category"
     )

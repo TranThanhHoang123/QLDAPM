@@ -64,7 +64,6 @@ def create_payment(order_id: str, amount: str, return_url: str):
     unique_order_id = f"{order_id}_{int(time.time())}"
 
     amount = str(int(float(amount)))
-
     signature = generate_signature(
         unique_order_id,
         request_id,

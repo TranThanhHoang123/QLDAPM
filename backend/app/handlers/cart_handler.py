@@ -18,7 +18,7 @@ cart_item_update_schema = CartItemUpdateSchema()
 
 # 1. Lấy giỏ hàng của user
 @bp.route("/", methods=["GET"])
-@my_permission(["user"])
+@my_permission("user")
 def get_cart():
     user_id = g.current_user.id
 
@@ -31,7 +31,7 @@ def get_cart():
 
 # 2. Thêm item vào giỏ
 @bp.route("/items", methods=["POST"])
-@my_permission(["user"])
+@my_permission("user")
 def add_item():
     user_id = g.current_user.id
     data = request.get_json()
@@ -41,12 +41,7 @@ def add_item():
         return jsonify(errors), 400
 
     try:
-        cart = cart_service.add_item(
-            user_id=user_id,
-            event_id=data["event_id"],
-            ticket_type=data["ticket_type"],
-            quantity=data["quantity"],
-        )
+        cart = cart_service.add_item(user_id=user_id, **data)
     except Exception as e:
         return jsonify({"message": str(e)}), 400
 
@@ -55,7 +50,7 @@ def add_item():
 
 # 3. Update số lượng item
 @bp.route("/items/<int:item_id>", methods=["PUT"])
-@my_permission(["user"])
+@my_permission("user")
 def update_item(item_id):
     user_id = g.current_user.id
     data = request.get_json()
@@ -65,11 +60,7 @@ def update_item(item_id):
         return jsonify(errors), 400
 
     try:
-        cart = cart_service.update_item(
-            user_id=user_id,
-            item_id=item_id,
-            quantity=data.get("quantity"),
-        )
+        cart = cart_service.update_item(user_id=user_id, item_id=item_id, **data)
     except Exception as e:
         return jsonify({"message": str(e)}), 400
 
@@ -78,7 +69,7 @@ def update_item(item_id):
 
 # 4. Xóa item khỏi giỏ
 @bp.route("/items/<int:item_id>", methods=["DELETE"])
-@my_permission(["user"])
+@my_permission("user")
 def remove_item(item_id):
     user_id = g.current_user.id
 

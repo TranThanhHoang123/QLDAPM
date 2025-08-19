@@ -6,6 +6,7 @@ from app.utils.jwt import JwtUtil
 app = create_app()
 jwt_util = JwtUtil()
 
+# Khởi tạo dữ liệu user mẫu
 def init_users():
     """Khởi tạo dữ liệu mẫu cho User"""
     if not User.query.first():  # Chỉ insert nếu DB trống
@@ -47,11 +48,12 @@ def init_users():
         db.session.add_all([user1, user2, user3])
         db.session.commit()
 
-        print("✅ Sample users inserted!")
+        print("Sample users inserted!")
     else:
-        print("⚠️ Users already exist, skip inserting.")
+        print("Users already exist, skip inserting.")
 
 
+# Khởi tạo dữ liệu category mẫu
 def init_categories():
     """Khởi tạo dữ liệu mẫu cho Category"""
     if not Category.query.first():
@@ -62,13 +64,13 @@ def init_categories():
         db.session.add_all([cat1, cat2, cat3])
         db.session.commit()
 
-        print("✅ Sample categories inserted!")
+        print("Sample categories inserted!")
     else:
-        print("⚠️ Categories already exist, skip inserting.")
+        print("Categories already exist, skip inserting.")
 
 
 with app.app_context():
     db.create_all()
     init_users()
     init_categories()
-    print("✅ Database created successfully!")
+    print("Database created successfully!")

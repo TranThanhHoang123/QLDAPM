@@ -1,13 +1,13 @@
 from app.extensions import ma
 from app.models import Event
-from marshmallow import fields
+from marshmallow import fields, validate
 from flask import request
 from app.schemas.category import CategoryListSchema
 # Base Schema
 class EventBaseSchema(ma.SQLAlchemyAutoSchema):
     # Format datetime khi dump/load
-    start_time = ma.DateTime(format="%Y-%m-%d %H:%M:%S")
-    end_time   = ma.DateTime(format="%Y-%m-%d %H:%M:%S")
+    start_time = fields.DateTime(format="%Y-%m-%d %H:%M:%S")
+    end_time   = fields.DateTime(format="%Y-%m-%d %H:%M:%S")
     image = fields.Method("get_image")
     category = fields.Nested(CategoryListSchema)
     class Meta:
@@ -26,12 +26,18 @@ class EventBaseSchema(ma.SQLAlchemyAutoSchema):
 
 # 1. Create Event Schema
 class EventCreateSchema(EventBaseSchema):
+    title = fields.String(required=True, validate=validate.Length(min=1, max=200))
+    location = fields.String(validate=validate.Length(max=200))
+    category_id = fields.Integer(required=True)
     class Meta(EventBaseSchema.Meta):
         exclude = ("id", "image")
 
 
 # 2. Update Event Schema
 class EventUpdateSchema(EventBaseSchema):
+    title = fields.String(validate=validate.Length(min=1, max=200))
+    location = fields.String(validate=validate.Length(max=200))
+    category_id = fields.Integer()
     class Meta(EventBaseSchema.Meta):
         exclude = ("id", "image")
 

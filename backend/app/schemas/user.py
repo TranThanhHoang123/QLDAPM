@@ -1,6 +1,6 @@
 from app.extensions import ma
 from app.models.user import User
-from marshmallow import fields
+from marshmallow import fields, validate
 # Base schema
 class UserBaseSchema(ma.SQLAlchemyAutoSchema):
     role = fields.Method("get_role")
@@ -13,21 +13,24 @@ class UserBaseSchema(ma.SQLAlchemyAutoSchema):
         # Nếu obj.role là Enum trả value, nếu không trả luôn
         return obj.role.value if hasattr(obj.role, "value") else obj.role
 
-# Serializer for user
-
-# 1. Create User Schema
 class UserCreateSchema(UserBaseSchema):
+    username = fields.String(required=True, validate=validate.Length(min=1))
+    email = fields.Email(required=True)
+    password = fields.String(required=True, load_only=True, validate=validate.Length(min=6))
+    phone_number = fields.String(required=True, validate=validate.Length(min=1))
+
     class Meta(UserBaseSchema.Meta):
         exclude = ("id", "role", "created_at", "updated_at")
 
-# 2. Update User Schema
 class UserUpdateSchema(UserBaseSchema):
+    email = fields.Email()
+    phone_number = fields.String(validate=validate.Length(min=1))
     class Meta(UserBaseSchema.Meta):
-        exclude = ("username", "password", "created_at", "updated_at")
+        exclude = ("id","username", "role", "password", "created_at", "updated_at")
 
 class UserChangePasswordSchema(ma.Schema):
-    old_password = ma.String(required=True)
-    new_password = ma.String(required=True)
+    old_password = fields.String(required=True)
+    new_password = fields.String(required=True, load_only=True, validate=validate.Length(min=6))
 
 class UserListSchema(UserBaseSchema):
     class Meta(UserBaseSchema.Meta):
