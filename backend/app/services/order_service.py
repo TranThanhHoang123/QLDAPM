@@ -2,6 +2,7 @@ from app.extensions import db
 from app.models.order import Order, OrderItem
 from app.models.ticket import TicketStatus
 from app.services.ticket_service import TicketService
+from sqlalchemy import func
 class OrderService:
     def __init__(self):
          self.ticket_service = TicketService()
@@ -131,4 +132,60 @@ class OrderService:
         except Exception as e:
             db.session.rollback()
             return None, str(e)
-        
+
+    def revenue_by_month(self, year: int):
+        """Doanh thu + số đơn theo tháng trong 1 năm"""
+        data = (
+            db.session.query(
+                func.extract("month", Order.created_at).label("month"),
+                func.sum(Order.total_amount).label("revenue"),
+                func.count(Order.id).label("orders"),
+            )
+            .filter(func.extract("year", Order.created_at) == year)
+            .filter(Order.status == "PAID")
+            .group_by(func.extract("month", Order.created_at))
+            .order_by("month")
+            .all()
+        )
+        return [
+            {"month": int(month), "revenue": float(revenue or 0), "orders": orders}
+            for month, revenue, orders in data
+        ]
+
+    def revenue_by_quarter(self, year: int):
+        """Doanh thu + số đơn theo quý trong 1 năm"""
+        data = (
+            db.session.query(
+                func.ceil(func.extract("month", Order.created_at) / 3).label("quarter"),
+                func.sum(Order.total_amount).label("revenue"),
+                func.count(Order.id).label("orders"),
+            )
+            .filter(func.extract("year", Order.created_at) == year)
+            .filter(Order.status == "PAID")
+            .group_by("quarter")
+            .order_by("quarter")
+            .all()
+        )
+        return [
+            {"quarter": int(q), "revenue": float(revenue or 0), "orders": orders}
+            for q, revenue, orders in data
+        ]
+
+    def revenue_by_year(self):
+        """Doanh thu + số đơn theo năm"""
+        data = (
+            db.session.query(
+                func.extract("year", Order.created_at).label("year"),
+                func.sum(Order.total_amount).label("revenue"),
+                func.count(Order.id).label("orders"),
+            )
+            .filter(Order.status == "PAID")
+            .group_by(func.extract("year", Order.created_at))
+            .order_by("year")
+            .all()
+        )
+        return [
+            {"year": int(year), "revenue": float(revenue or 0), "orders": orders}
+            for year, revenue, orders in data
+        ]
+     

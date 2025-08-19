@@ -209,3 +209,16 @@ def get_orders():
         "page": pagination.page,
         "pages": pagination.pages
     })
+
+@bp.route("/stats/monthly/<int:year>")
+def stats_monthly(year):
+    return jsonify(order_service.revenue_by_month(year))
+
+@bp.route("/stats/quarterly/<int:year>")
+def stats_quarterly(year):
+    return jsonify(order_service.revenue_by_quarter(year))
+
+@bp.route("/stats/yearly")
+def stats_yearly():
+    return jsonify(order_service.revenue_by_year())
+
