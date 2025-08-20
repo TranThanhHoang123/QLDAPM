@@ -17,14 +17,14 @@ class Ticket(BaseModel):
     __tablename__ = "tickets"
 
     event_id = db.Column(
-        db.BigInteger,
+        db.Integer,
         db.ForeignKey("events.id", ondelete="CASCADE"),
         nullable=False
     )
 
     user_id = db.Column(
-        db.BigInteger,
-        db.ForeignKey("users.id", ondelete="SET NULL"),
+        db.Integer,
+        db.ForeignKey("users.id", ondelete="RESTRICT"),
         nullable=True
     )
 
@@ -47,3 +47,4 @@ class Ticket(BaseModel):
     # Relationship
     event = db.relationship("Event", back_populates="tickets")
     user = db.relationship("User", back_populates="tickets")
+    order_items = db.relationship("OrderItem", back_populates="ticket")

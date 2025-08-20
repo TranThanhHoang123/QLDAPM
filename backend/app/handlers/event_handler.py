@@ -19,7 +19,7 @@ event_list_schema = EventListSchema(many=True)
 event_detail_schema = EventDetailSchema()
 
 
-# 1. Lấy danh sách event (có tìm kiếm, phân trang)
+# 1. Lấy danh sách event
 @bp.route("/", methods=["GET"])
 def get_events():
     params = request.args.to_dict()
@@ -44,7 +44,7 @@ def get_event(event_id):
 
 # 3. Tạo event
 @bp.route("/", methods=["POST"])
-@my_permission(["admin"])
+@my_permission("manager")
 def create_event():
     data = request.form.to_dict()
     file = request.files.get("image")
@@ -63,7 +63,7 @@ def create_event():
 
 # 4. Cập nhật event
 @bp.route("/<int:event_id>", methods=["PUT", "PATCH"])
-@my_permission(["admin"])
+@my_permission("manager")
 def update_event(event_id):
     data = request.form.to_dict()
     file = request.files.get("image")
@@ -89,7 +89,7 @@ def update_event(event_id):
 
 # 5. Xóa event
 @bp.route("/<int:event_id>", methods=["DELETE"])
-@my_permission(["admin"])
+@my_permission("admin")
 def delete_event(event_id):
     try:
         success = event_service.delete_event(event_id)

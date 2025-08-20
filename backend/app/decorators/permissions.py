@@ -5,14 +5,7 @@ from app.utils.jwt import JwtUtil
 
 jwt_util = JwtUtil()
 
-# Thứ tự quyền từ thấp đến cao
-ROLE_HIERARCHY = {
-    "user": 1,
-    "manager": 2,
-    "admin": 3
-}
-
-def my_permission(required_roles):
+def my_permission(required_role):
     def decorator(f):
         @wraps(f)
         def wrapper(*args, **kwargs):
@@ -24,7 +17,7 @@ def my_permission(required_roles):
             token = auth_header.split(" ")[1]
 
             try:
-                # Giải mã token → lấy user
+                # Giải mã token -> lấy user
                 user_id = jwt_util.parse_token_to_id(token)
                 user = User.query.get(user_id)
                 if not user:
@@ -36,11 +29,15 @@ def my_permission(required_roles):
                 # Lấy role hiện tại của user (Enum hoặc string)
                 user_role = user.role.value if hasattr(user.role, "value") else user.role
 
-                # Lấy bậc role cao nhất mà API yêu cầu
-                min_required_level = max(ROLE_HIERARCHY[r] for r in required_roles)
-                user_level = ROLE_HIERARCHY.get(user_role, 0)
-                if user_level < min_required_level:
-                    return jsonify({"message": "Permission denied"}), 403
+                 # Check quyền
+                if required_role == "user":
+                    pass  # ai cũng được miễn là có đăng nhập
+                elif required_role == "manager":
+                    if user_role not in ["manager", "admin"]:
+                        return jsonify({"message": "Permission denied"}), 403
+                elif required_role == "admin":
+                    if user_role != "admin":
+                        return jsonify({"message": "Permission denied"}), 403
 
                 return f(*args, **kwargs)
 

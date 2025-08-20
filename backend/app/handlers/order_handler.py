@@ -27,7 +27,7 @@ VNPAY_RETURN_URL = "http://localhost:8080/vnpay/payment_return"
 
 # 1. Tạo order
 @bp.route("/", methods=["POST"])
-@my_permission(["user"])
+@my_permission("user")
 def create_order():
     data = request.get_json()
     errors = order_create_schema.validate(data)
@@ -38,12 +38,16 @@ def create_order():
     payment_method = data["payment_method"]
     items = data["items"]
 
+    ok, error = order_service.check_events_deadline(items)
+    if not ok:
+        return jsonify({"error": error}), 400
+
     order, error = order_service.create_order(user_id, payment_method, items)
     if error:
         return jsonify({"error": error}), 400
     
     # 2.1 Nếu chọn VNPAY thì tạo link payment
-    if payment_method == "vnpay":
+    if payment_method == "VNPAY":
         # Lấy domain backend hiện tại, vd: http://127.0.0.1:5000/
         current_domain = request.host_url.rstrip("/")  
         VNPAY_RETURN_URL = f"{current_domain}/orders/vnpay/payment_return"
@@ -70,7 +74,7 @@ def create_order():
         }), 201
 
     # 2.2 Nếu chọn MOMO thì thanh toán bằng momo
-    if payment_method == "momo":
+    if payment_method == "MOMO":
         current_domain = request.host_url.rstrip("/")
         MOMO_RETURN_URL = f"{current_domain}/orders/momo/payment_return"
 
@@ -155,9 +159,9 @@ def momo_return():
     redirect_url = f"http://localhost:3000/payment_result?order_id={order.id}&status={order.status}"
     return redirect(redirect_url)
 
-# 4. Xem chi tiết order
+# 3. Xem chi tiết order
 @bp.route("/<int:order_id>", methods=["GET"])
-@my_permission(["manager"])
+@my_permission("manager")
 def get_order_detail_for_manager(order_id):
     order = order_service.get_order(order_id)
     if not order:
@@ -165,9 +169,9 @@ def get_order_detail_for_manager(order_id):
 
     return jsonify(order_detail_schema.dump(order)), 200
 
-# 3. Xem chi tiết order của user
+# 4. Xem chi tiết order của user
 @bp.route("/me/<int:order_id>", methods=["GET"])
-@my_permission(["user"])
+@my_permission("user")
 def get_order_detail(order_id):
     order = order_service.get_order(order_id)
     if not order:
@@ -181,7 +185,7 @@ def get_order_detail(order_id):
 
 # 5. Lấy danh sách order cho quản lý
 @bp.route("/", methods=["GET"])
-@my_permission(["manager"])
+@my_permission("manager")
 def get_orders_for_manager():
     params = request.args.to_dict()
     pagination = order_service.get_orders(**params)
@@ -195,7 +199,7 @@ def get_orders_for_manager():
 
 # 6. Lấy danh sách order cho chính user
 @bp.route("/me", methods=["GET"])
-@my_permission(["user"])
+@my_permission("user")
 def get_orders():
     params = request.args.to_dict()
     pagination = order_service.get_orders(**params)
@@ -210,15 +214,21 @@ def get_orders():
         "pages": pagination.pages
     })
 
+# 7. Thống kê số lượng và doanh thu theo tháng
 @bp.route("/stats/monthly/<int:year>")
+@my_permission("manager")
 def stats_monthly(year):
     return jsonify(order_service.revenue_by_month(year))
 
+# 8. Thống kê số lượng và doanh thu theo quý
 @bp.route("/stats/quarterly/<int:year>")
+@my_permission("manager")
 def stats_quarterly(year):
     return jsonify(order_service.revenue_by_quarter(year))
 
+# 9. Thống kê số lượng và doanh thu theo năm
 @bp.route("/stats/yearly")
+@my_permission("manager")
 def stats_yearly():
     return jsonify(order_service.revenue_by_year())
 

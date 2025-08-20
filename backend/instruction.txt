@@ -6,3 +6,7 @@ python init_db.py
 
 # chạy csdl 
 python main.py
+
+# push lên docker hub
+docker build -t hoangtranthanh/qldapm-backend:latest .
+docker push hoangtranthanh/qldapm-backend:latest

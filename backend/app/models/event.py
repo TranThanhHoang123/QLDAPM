@@ -12,7 +12,7 @@ class Event(BaseModel):
     
     # Relationship
     category_id = db.Column(
-        db.BigInteger,
+        db.Integer,
         db.ForeignKey("categories.id", ondelete="RESTRICT"),
         nullable=False
     )

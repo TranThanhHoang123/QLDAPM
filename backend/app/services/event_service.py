@@ -1,5 +1,5 @@
 from app.extensions import db
-from app.models import Event
+from app.models import Event, Category
 from datetime import datetime
 class EventService:
     def get_events(self, **kwargs):
@@ -50,6 +50,11 @@ class EventService:
         if isinstance(data.get("end_time"), str):
             data["end_time"] = datetime.strptime(data["end_time"], "%Y-%m-%d %H:%M:%S")
 
+        # Check category tồn tại
+        category_id = data["category_id"]
+        if not Category.query.get(category_id):
+            raise ValueError("Category not found")
+
         event = Event(**data)
         db.session.add(event)
         db.session.commit()
@@ -76,6 +81,11 @@ class EventService:
             data["start_time"] = datetime.strptime(data["start_time"], "%Y-%m-%d %H:%M:%S")
         if isinstance(data.get("end_time"), str):
             data["end_time"] = datetime.strptime(data["end_time"], "%Y-%m-%d %H:%M:%S")
+
+        # Check category tồn tại nếu có update
+        if "category_id" in data:
+            if not Category.query.get(data["category_id"]):
+                raise ValueError("Category not found")
 
         # cập nhật các field
         for key, value in data.items():

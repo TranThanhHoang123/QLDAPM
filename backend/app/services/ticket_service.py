@@ -1,6 +1,8 @@
 from app.extensions import db
 from app.models.ticket import Ticket, TicketType, TicketStatus
 from sqlalchemy.exc import IntegrityError
+from app.models.event import Event
+from datetime import datetime, timedelta, timezone
 from sqlalchemy import func
 class TicketService:
     def __init__(self):
@@ -47,13 +49,35 @@ class TicketService:
         pagination = query.paginate(page=page, per_page=page_size, error_out=False)
         return pagination
 
-    def get_tickets_by_user(self, user_id: int):
+    def get_tickets_by_user(self, user_id):
         return Ticket.query.filter_by(user_id=user_id).all()
 
     def get_ticket(self, ticket_id):
         return Ticket.query.get(ticket_id)
- 
-    def create_tickets(self, event_id: int, ticket_type: str, price: float, quantity: int):
+
+    def check_event_before_sale(self, event_id):
+        """
+        Kiểm tra event có còn đủ thời gian (>= 30 phút trước khi diễn ra)
+        để cho phép thêm vé hay không.
+        """
+        vn_tz = timezone(timedelta(hours=7))
+        now = datetime.now(vn_tz)
+
+        event = Event.query.get(event_id)
+        if not event:
+            raise ValueError("Event not found")
+
+        # Ép event_time về cùng timezone
+        event_time = event.start_time
+        if event_time.tzinfo is None:
+            event_time = event_time.replace(tzinfo=vn_tz)
+
+        if now > event_time - timedelta(minutes=30):
+            raise ValueError("Cannot add tickets. Event is starting in less than 30 minutes.")
+
+        return True
+
+    def create_tickets(self, event_id, ticket_type, price, quantity):
         """
         Thêm nhiều vé vào một event.
         """
@@ -98,61 +122,9 @@ class TicketService:
             db.session.commit()
             return tickets, None
         except IntegrityError as e:
-            db.session.rollback()
             return None, f"Database error while reserving tickets: {str(e)}"
 
-    def confirm_tickets(self, ticket_ids):
-        """
-        Xác nhận thanh toán thành công -> RESERVED -> SOLD
-        """
-        tickets = Ticket.query.filter(
-            Ticket.id.in_(ticket_ids),
-            Ticket.status == TicketStatus.RESERVED
-        ).all()
-
-        for t in tickets:
-            t.status = TicketStatus.SOLD
-
-        db.session.commit()
-        return tickets
-
-    def release_tickets(self, ticket_ids):
-        """
-        Nếu thanh toán fail/timeout -> RESERVED -> AVAILABLE
-        """
-        tickets = Ticket.query.filter(
-            Ticket.id.in_(ticket_ids),
-            Ticket.status == TicketStatus.RESERVED
-        ).all()
-
-        for t in tickets:
-            t.status = TicketStatus.AVAILABLE
-            t.user_id = None
-
-        db.session.commit()
-        return tickets
-
-    def mark_ticket_used(self, ticket_id: int):
-        ticket = Ticket.query.get(ticket_id)
-        if not ticket:
-            raise ValueError("Ticket not found")
-        if ticket.status != TicketStatus.PAID:
-            raise ValueError("Ticket not valid for check-in")
-        ticket.status = TicketStatus.USED
-        db.session.commit()
-        return ticket
-    
-    def cancel_ticket(self, ticket_id: int):
-        ticket = Ticket.query.get(ticket_id)
-        if not ticket:
-            raise ValueError("Ticket not found")
-        if ticket.status not in [TicketStatus.AVAILABLE, TicketStatus.BOOKED]:
-            raise ValueError("Cannot cancel ticket already paid/used")
-        ticket.status = TicketStatus.CANCELLED
-        db.session.commit()
-        return ticket
-
-    def count_sold_by_month(self, year: int):
+    def count_sold_by_month(self, year):
         """Số lượng vé bán (SOLD/USED) theo tháng"""
         data = (
             db.session.query(
@@ -167,7 +139,7 @@ class TicketService:
         )
         return [{"month": int(month), "count": count} for month, count in data]
 
-    def count_sold_by_quarter(self, year: int):
+    def count_sold_by_quarter(self, year):
         """Số lượng vé bán (SOLD/USED) theo quý"""
         data = (
             db.session.query(

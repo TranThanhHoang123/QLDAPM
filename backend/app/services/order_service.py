@@ -1,7 +1,9 @@
 from app.extensions import db
-from app.models.order import Order, OrderItem
+from app.models.order import Order, OrderItem, OrderStatus, PaymentMethod
 from app.models.ticket import TicketStatus
+from app.models.event import Event
 from app.services.ticket_service import TicketService
+from datetime import datetime, timedelta, timezone
 from sqlalchemy import func
 class OrderService:
     def __init__(self):
@@ -15,10 +17,12 @@ class OrderService:
             query = query.filter(Order.user_id == kwargs["user_id"])
 
         if "status" in kwargs and kwargs["status"]:
-            query = query.filter(Order.status == kwargs["status"])
+            status = OrderStatus(kwargs["status"])
+            query = query.filter(Order.status == status)
         
         if "payment_method" in kwargs and kwargs["payment_method"]:
-            query = query.filter(Order.payment_method == kwargs["payment_method"])
+            method = PaymentMethod(kwargs["payment_method"])
+            query = query.filter(Order.payment_method == method)
 
         # Phân trang
         try:
@@ -36,6 +40,25 @@ class OrderService:
 
     def get_order(self, order_id):
         return Order.query.get(order_id)
+
+    def check_events_deadline(self, items):
+
+        vn_tz = timezone(timedelta(hours=7))
+        now = datetime.now(vn_tz)
+
+        for item in items:
+            event = Event.query.get(item["event_id"])
+            if not event:
+                return False, f"Event {item['event_id']} not found"
+
+            event_time = event.start_time
+            if event_time.tzinfo is None:
+                event_time = event_time.replace(tzinfo=vn_tz)
+
+            if now > event_time - timedelta(minutes=30):
+                return False, f"Cannot create order: Event '{event.title}' must be booked at least 30 minutes before start"
+
+        return True, None
 
     def create_order(self, user_id, payment_method, items):
         """
@@ -55,7 +78,6 @@ class OrderService:
                 user_id=user_id
             )
             if error:
-                db.session.rollback()
                 return None, error
 
             reserved_tickets.extend(tickets)
@@ -63,8 +85,8 @@ class OrderService:
         # 3. Tạo order
         order = Order(
             user_id=user_id,
-            status="PENDING",
-            payment_method=payment_method,
+            status=OrderStatus.PENDING,
+            payment_method=PaymentMethod(payment_method),
             total_amount=0  # sẽ cập nhật sau
         )
         db.session.add(order)
@@ -92,22 +114,21 @@ class OrderService:
         if not order:
             return None, "Order not found"
 
-        if order.status != "PENDING":
+        if order.status != OrderStatus.PENDING:
             return None, "Order already processed"
 
         try:
             # Cập nhật trạng thái order
-            order.status = "PAID"
+            order.status = OrderStatus.PAID
             # Lấy tất cả ticket từ order_items
-            for item in order.items:  # quan hệ 1-n: Order.items
-                ticket = item.ticket  # quan hệ n-1: OrderItem.ticket
+            for item in order.items:
+                ticket = item.ticket
                 if ticket.status == TicketStatus.RESERVED:
                     ticket.status = TicketStatus.SOLD
 
             db.session.commit()
             return order, None
         except Exception as e:
-            db.session.rollback()
             return None, str(e)
 
     def payment_failed(self, order_id):
@@ -115,11 +136,11 @@ class OrderService:
         if not order:
             return None, "Order not found"
 
-        if order.status != "PENDING":
+        if order.status != OrderStatus.PENDING:
             return None, "Order already processed"
 
         try:
-            order.status = "CANCELLED"
+            order.status = OrderStatus.CANCELLED
 
             for item in order.items:
                 ticket = item.ticket
@@ -130,10 +151,9 @@ class OrderService:
             db.session.commit()
             return order, None
         except Exception as e:
-            db.session.rollback()
             return None, str(e)
 
-    def revenue_by_month(self, year: int):
+    def revenue_by_month(self, year):
         """Doanh thu + số đơn theo tháng trong 1 năm"""
         data = (
             db.session.query(
@@ -142,7 +162,7 @@ class OrderService:
                 func.count(Order.id).label("orders"),
             )
             .filter(func.extract("year", Order.created_at) == year)
-            .filter(Order.status == "PAID")
+            .filter(Order.status == OrderStatus.PAID)
             .group_by(func.extract("month", Order.created_at))
             .order_by("month")
             .all()
@@ -152,7 +172,7 @@ class OrderService:
             for month, revenue, orders in data
         ]
 
-    def revenue_by_quarter(self, year: int):
+    def revenue_by_quarter(self, year):
         """Doanh thu + số đơn theo quý trong 1 năm"""
         data = (
             db.session.query(
@@ -161,7 +181,7 @@ class OrderService:
                 func.count(Order.id).label("orders"),
             )
             .filter(func.extract("year", Order.created_at) == year)
-            .filter(Order.status == "PAID")
+            .filter(Order.status == OrderStatus.PAID)
             .group_by("quarter")
             .order_by("quarter")
             .all()
@@ -179,7 +199,7 @@ class OrderService:
                 func.sum(Order.total_amount).label("revenue"),
                 func.count(Order.id).label("orders"),
             )
-            .filter(Order.status == "PAID")
+            .filter(Order.status == OrderStatus.PAID)
             .group_by(func.extract("year", Order.created_at))
             .order_by("year")
             .all()

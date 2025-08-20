@@ -4,7 +4,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from jinja2 import Environment, FileSystemLoader
 
-# Load biến môi trường (nên lưu trong .env)
+# Load biến môi trường
 SMTP_SERVER = os.getenv("SMTP_SERVER", "smtp.gmail.com")
 SMTP_PORT = int(os.getenv("SMTP_PORT", 587))
 SMTP_USER = os.getenv("SMTP_USER", "taji3333333@gmail.com")
@@ -36,13 +36,13 @@ def send_email(to_email: str, subject: str, html_content: str):
             server.starttls()
             server.login(SMTP_USER, SMTP_PASS)
             server.sendmail(SMTP_USER, to_email, msg.as_string())
-            print(f"✅ Mail đã gửi tới {to_email}")
+            print(f"Mail đã gửi tới {to_email}")
     except Exception as e:
-        print(f"❌ Lỗi gửi mail: {e}")
+        print(f"Lỗi gửi mail: {e}")
 
 
 def send_payment_success_email(to_email: str, context: dict):
-    """Hàm chuyên biệt gửi email xác nhận thanh toán"""
+    """Hàm gửi email xác nhận thanh toán"""
     html_content = render_template("payment_success_smtp.html", context)
     subject = f"Xác nhận thanh toán đơn hàng #{context.get('order_id')}"
     send_email(to_email, subject, html_content)
@@ -55,6 +55,8 @@ def build_payment_success_context(order: dict) -> dict:
 
     user = order["user"]
     items = []
+    
+    # Duyệt items
     for idx, item in enumerate(order["items"], start=1):
         ticket = item["ticket"]
         event = ticket["event"]
@@ -70,6 +72,7 @@ def build_payment_success_context(order: dict) -> dict:
             "event_image": event["image"],
         })
 
+    # Build kết quả trả về
     context = {
         "order_id": order["id"],
         "status": order["status"],
