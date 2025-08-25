@@ -52,6 +52,7 @@ class UserServiceTestCase(unittest.TestCase):
         self.assertIn("token", result)
 
     def test_login_failure(self):
+        # đăng nhập giả
         result, error = self.service.login("nonexist", "any_password")
 
         self.assertIsNone(result)
