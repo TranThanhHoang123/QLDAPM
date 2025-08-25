@@ -28,7 +28,8 @@ def get_categories():
         "items": category_list_schema.dump(pagination.items),
         "total": pagination.total,
         "page": pagination.page,
-        "pages": pagination.pages
+        "pages": pagination.pages,
+        "test": pagination.pages
     })
 
 
