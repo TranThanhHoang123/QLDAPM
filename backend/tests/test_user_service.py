@@ -39,8 +39,6 @@ class UserServiceTestCase(unittest.TestCase):
             name="Administrator",
             password=password_hash,
             role="admin",
-            created_at=datetime.utcnow(),
-            updated_at=datetime.utcnow()
         )
         db.session.add(user)
         db.session.commit()
