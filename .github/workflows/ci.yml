@@ -2,9 +2,6 @@ name: CI
 
 # Trigger khi push vào main hoặc PR nhắm vào main
 on:
-  push:
-    branches:
-      - main
   pull_request:
     branches:
       - main
