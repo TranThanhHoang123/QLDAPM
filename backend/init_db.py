@@ -53,7 +53,7 @@ def init_users():
         print("Users already exist, skip inserting.")
 
 
-# Khởi tạo dữ liệu category mẫu
+# Khởi tạo dữ liệu category mẫu 1
 def init_categories():
     """Khởi tạo dữ liệu mẫu cho Category"""
     if not Category.query.first():
