@@ -10,13 +10,3 @@ services:
       - FLASK_ENV=development
       - DATABASE_URL=sqlite:///app.db
     restart: always
-  
-  # test:
-  #   build: .
-  #   container_name: qldapm-backend-test
-  #   command: python -m unittest discover -s tests -p "*.py" -v
-  #   environment:
-  #     FLASK_ENV: testing
-  #     DATABASE_URL: "sqlite:///:memory:"
-  #   volumes:
-  #     - .:/app
