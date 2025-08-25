@@ -10,3 +10,7 @@ python main.py
 # push lên docker hub
 docker build -t hoangtranthanh/qldapm-backend:latest .
 docker push hoangtranthanh/qldapm-backend:latest
+
+
+# test
+python -m unittest discover -s tests -p "*.py" -v
