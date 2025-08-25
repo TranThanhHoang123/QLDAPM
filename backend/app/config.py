@@ -11,3 +11,8 @@ class Config:
 
 class DevelopmentConfig(Config):
     DEBUG = True
+
+class TestingConfig:
+    TESTING = True
+    SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"  # DB tạm trong RAM
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
