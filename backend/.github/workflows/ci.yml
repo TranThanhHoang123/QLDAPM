@@ -1,12 +1,11 @@
 name: CI
 
 on:
-  pull_request:
-    types: [closed]   # chỉ khi PR đóng (merged hoặc closed)
+  push:
+    branches: [main]
 
 jobs:
   test:
-    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
     steps:
