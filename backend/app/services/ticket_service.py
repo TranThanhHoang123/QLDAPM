@@ -4,6 +4,8 @@ from sqlalchemy.exc import IntegrityError
 from app.models.event import Event
 from datetime import datetime, timedelta, timezone
 from sqlalchemy import func
+
+
 class TicketService:
     def __init__(self):
         pass
@@ -73,7 +75,9 @@ class TicketService:
             event_time = event_time.replace(tzinfo=vn_tz)
 
         if now > event_time - timedelta(minutes=30):
-            raise ValueError("Cannot add tickets. Event is starting in less than 30 minutes.")
+            raise ValueError(
+                "Cannot add tickets. Event is starting in less than 30 minutes."
+            )
 
         return True
 
@@ -92,7 +96,7 @@ class TicketService:
                 event_id=event_id,
                 type=ticket_type_enum,
                 price=price,
-                status=TicketStatus.AVAILABLE
+                status=TicketStatus.AVAILABLE,
             )
             tickets.append(ticket)
 
@@ -105,8 +109,9 @@ class TicketService:
         Kiểm tra số lượng vé AVAILABLE và giữ chỗ (RESERVED) cho user
         """
         tickets = (
-            Ticket.query
-            .filter_by(event_id=event_id, type=ticket_type, status=TicketStatus.AVAILABLE)
+            Ticket.query.filter_by(
+                event_id=event_id, type=ticket_type, status=TicketStatus.AVAILABLE
+            )
             .limit(quantity)
             .with_for_update()  # lock để tránh race condition
             .all()
@@ -129,7 +134,7 @@ class TicketService:
         data = (
             db.session.query(
                 func.extract("month", Ticket.created_at).label("month"),
-                func.count(Ticket.id).label("count")
+                func.count(Ticket.id).label("count"),
             )
             .filter(func.extract("year", Ticket.created_at) == year)
             .filter(Ticket.status.in_([TicketStatus.SOLD, TicketStatus.USED]))
@@ -143,8 +148,10 @@ class TicketService:
         """Số lượng vé bán (SOLD/USED) theo quý"""
         data = (
             db.session.query(
-                func.ceil(func.extract("month", Ticket.created_at) / 3).label("quarter"),
-                func.count(Ticket.id).label("count")
+                func.ceil(func.extract("month", Ticket.created_at) / 3).label(
+                    "quarter"
+                ),
+                func.count(Ticket.id).label("count"),
             )
             .filter(func.extract("year", Ticket.created_at) == year)
             .filter(Ticket.status.in_([TicketStatus.SOLD, TicketStatus.USED]))
@@ -159,7 +166,7 @@ class TicketService:
         data = (
             db.session.query(
                 func.extract("year", Ticket.created_at).label("year"),
-                func.count(Ticket.id).label("count")
+                func.count(Ticket.id).label("count"),
             )
             .filter(Ticket.status.in_([TicketStatus.SOLD, TicketStatus.USED]))
             .group_by(func.extract("year", Ticket.created_at))

@@ -1,7 +1,7 @@
 from app.extensions import db
 from app.models.category import Category
-from datetime import datetime
 from sqlalchemy.exc import IntegrityError
+
 
 class CategoryService:
     def get_categories(self, **kwargs):
@@ -24,7 +24,7 @@ class CategoryService:
         # Phân trang
         pagination = query.paginate(page=page, per_page=page_size, error_out=False)
         return pagination
-    
+
     def get_category(self, category_id):
         return Category.query.get(category_id)
 
@@ -44,7 +44,11 @@ class CategoryService:
 
         disallowed = {"id"}
         for field, value in data.items():
-            if field not in disallowed and hasattr(category, field) and value is not None:
+            if (
+                field not in disallowed
+                and hasattr(category, field)
+                and value is not None
+            ):
                 setattr(category, field, value)
 
         try:
@@ -59,13 +63,10 @@ class CategoryService:
         category = Category.query.get(category_id)
         if not category:
             raise ValueError("Category not found")
-        
+
         try:
             db.session.delete(category)
             db.session.commit()
             return True
         except Exception as e:
             raise Exception(f"Failed to delete category: {str(e)}")
-    
-
-

@@ -1,6 +1,8 @@
 from app.extensions import db
 from app.models import Event, Category
 from datetime import datetime
+
+
 class EventService:
     def get_events(self, **kwargs):
         query = Event.query
@@ -25,7 +27,6 @@ class EventService:
         if "category_id" in kwargs and kwargs["category_id"]:
             query = query.filter(Event.category_id == kwargs["category_id"])
 
-
         # Phân trang
         try:
             page = int(kwargs.get("page", 1))
@@ -46,7 +47,9 @@ class EventService:
     def create_event(self, **data):
         # Convert string -> datetime nếu truyền vào là string
         if isinstance(data.get("start_time"), str):
-            data["start_time"] = datetime.strptime(data["start_time"], "%Y-%m-%d %H:%M:%S")
+            data["start_time"] = datetime.strptime(
+                data["start_time"], "%Y-%m-%d %H:%M:%S"
+            )
         if isinstance(data.get("end_time"), str):
             data["end_time"] = datetime.strptime(data["end_time"], "%Y-%m-%d %H:%M:%S")
 
@@ -64,10 +67,10 @@ class EventService:
         event = Event.query.filter(
             Event.id == event_id,
         ).first()
-        
+
         if not event:
             return False
-        
+
         db.session.delete(event)
         db.session.commit()
         return True
@@ -78,7 +81,9 @@ class EventService:
             raise ValueError("Event not found")
 
         if isinstance(data.get("start_time"), str):
-            data["start_time"] = datetime.strptime(data["start_time"], "%Y-%m-%d %H:%M:%S")
+            data["start_time"] = datetime.strptime(
+                data["start_time"], "%Y-%m-%d %H:%M:%S"
+            )
         if isinstance(data.get("end_time"), str):
             data["end_time"] = datetime.strptime(data["end_time"], "%Y-%m-%d %H:%M:%S")
 
