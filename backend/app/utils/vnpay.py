@@ -10,7 +10,7 @@ class vnpay:
     def get_payment_url(self, vnpay_payment_url, secret_key):
         inputData = sorted(self.requestData.items())
         queryString = ""
-        hasData = ""
+        # hasData = ""
         seq = 0
         for key, val in inputData:
             if seq == 1:
