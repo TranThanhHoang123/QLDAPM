@@ -30,6 +30,7 @@ def get_categories():
             "total": pagination.total,
             "page": pagination.page,
             "pages": pagination.pages,
+            "pages11111111111111": pagination.pages,
         }
     )
 
