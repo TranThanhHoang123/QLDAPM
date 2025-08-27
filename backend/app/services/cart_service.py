@@ -35,9 +35,7 @@ class CartService:
 
         # Kiểm tra item đã tồn tại
         existing_item = CartItem.query.filter_by(
-            cart_id=cart.id,
-            event_id=event_id,
-            ticket_type=ticket_enum
+            cart_id=cart.id, event_id=event_id, ticket_type=ticket_enum
         ).first()
 
         if existing_item:
@@ -47,7 +45,7 @@ class CartService:
                 cart_id=cart.id,
                 event_id=event_id,
                 ticket_type=ticket_enum,
-                quantity=quantity
+                quantity=quantity,
             )
             db.session.add(new_item)
 

@@ -1,6 +1,7 @@
 from app.extensions import ma
 from app.models import Category
 
+
 # Base schema
 class CategoryBaseSchema(ma.SQLAlchemyAutoSchema):
     class Meta:

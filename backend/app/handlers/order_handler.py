@@ -1,4 +1,4 @@
-from flask import Blueprint, g, jsonify,  request, redirect
+from flask import Blueprint, g, jsonify, request, redirect
 from app.services.order_service import OrderService
 from app.decorators.permissions import my_permission
 from datetime import datetime
@@ -6,11 +6,7 @@ from app.utils.vnpay import vnpay
 from app.utils.momo import create_payment
 from app.utils.jwt import JwtUtil
 from app.utils.smtp import send_payment_success_email, build_payment_success_context
-from app.schemas.order import (
-    OrderCreateSchema,
-    OrderListSchema,
-    OrderDetailSchema
-)
+from app.schemas.order import OrderCreateSchema, OrderListSchema, OrderDetailSchema
 
 bp = Blueprint("orders", __name__, url_prefix="/orders")
 order_service = OrderService()
@@ -24,6 +20,7 @@ VNPAY_URL = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html"
 VNPAY_TMNCODE = "LZPLRB1E"
 VNPAY_HASH_SECRET = "APBHTE4INVHF4PE8N0DBU6G09NHAMWQU"
 VNPAY_RETURN_URL = "http://localhost:8080/vnpay/payment_return"
+
 
 # 1. Tạo order
 @bp.route("/", methods=["POST"])
@@ -45,33 +42,35 @@ def create_order():
     order, error = order_service.create_order(user_id, payment_method, items)
     if error:
         return jsonify({"error": error}), 400
-    
+
     # 2.1 Nếu chọn VNPAY thì tạo link payment
     if payment_method == "VNPAY":
         # Lấy domain backend hiện tại, vd: http://127.0.0.1:5000/
-        current_domain = request.host_url.rstrip("/")  
+        current_domain = request.host_url.rstrip("/")
         VNPAY_RETURN_URL = f"{current_domain}/orders/vnpay/payment_return"
         vnp = vnpay()
         vnp.requestData = {
-            'vnp_Version': '2.1.0',
-            'vnp_Command': 'pay',
-            'vnp_TmnCode': VNPAY_TMNCODE,
-            'vnp_Amount': str(int(order.total_amount) * 100),  # VND * 100
-            'vnp_CurrCode': 'VND',
-            'vnp_TxnRef': str(order.id),  # dùng order.id làm mã tham chiếu
-            'vnp_OrderInfo': f"Thanh toan don hang {order.id}",
-            'vnp_OrderType': 'other',
-            'vnp_Locale': 'vn',
-            'vnp_CreateDate': datetime.now().strftime('%Y%m%d%H%M%S'),
-            'vnp_IpAddr': request.remote_addr,
-            'vnp_ReturnUrl': VNPAY_RETURN_URL
+            "vnp_Version": "2.1.0",
+            "vnp_Command": "pay",
+            "vnp_TmnCode": VNPAY_TMNCODE,
+            "vnp_Amount": str(int(order.total_amount) * 100),  # VND * 100
+            "vnp_CurrCode": "VND",
+            "vnp_TxnRef": str(order.id),  # dùng order.id làm mã tham chiếu
+            "vnp_OrderInfo": f"Thanh toan don hang {order.id}",
+            "vnp_OrderType": "other",
+            "vnp_Locale": "vn",
+            "vnp_CreateDate": datetime.now().strftime("%Y%m%d%H%M%S"),
+            "vnp_IpAddr": request.remote_addr,
+            "vnp_ReturnUrl": VNPAY_RETURN_URL,
         }
         payment_url = vnp.get_payment_url(VNPAY_URL, VNPAY_HASH_SECRET)
 
-        return jsonify({
-            "order": order_detail_schema.dump(order),
-            "payment_url": payment_url
-        }), 201
+        return (
+            jsonify(
+                {"order": order_detail_schema.dump(order), "payment_url": payment_url}
+            ),
+            201,
+        )
 
     # 2.2 Nếu chọn MOMO thì thanh toán bằng momo
     if payment_method == "MOMO":
@@ -81,20 +80,21 @@ def create_order():
         # gọi utils để tạo payment
         momo_response = create_payment(
             amount=str(order.total_amount),
-            order_id=str(order.id),          # dùng order.id làm orderId
-            return_url=MOMO_RETURN_URL       # truyền return url động
+            order_id=str(order.id),  # dùng order.id làm orderId
+            return_url=MOMO_RETURN_URL,  # truyền return url động
         )
 
         # MoMo trả về payUrl để redirect
         pay_url = momo_response.get("payUrl")
 
-        return jsonify({
-            "order": order_detail_schema.dump(order),
-            "payment_url": pay_url
-        }), 201
+        return (
+            jsonify({"order": order_detail_schema.dump(order), "payment_url": pay_url}),
+            201,
+        )
 
     # Nếu thanh toán offline thì trả về luôn
     return jsonify(order_detail_schema.dump(order)), 201
+
 
 # 2.1 Xử lý thanh toán vnpay
 @bp.route("/vnpay/payment_return", methods=["GET"])
@@ -124,6 +124,7 @@ def vnpay_return():
     # Redirect sang FE, kèm trạng thái
     redirect_url = f"http://localhost:3000/payment_result?order_id={order.id}&status={order.status}"
     return redirect(redirect_url)
+
 
 # 2.2 Xử lý thanh toán momo
 @bp.route("/momo/payment_return", methods=["GET"])
@@ -159,6 +160,7 @@ def momo_return():
     redirect_url = f"http://localhost:3000/payment_result?order_id={order.id}&status={order.status}"
     return redirect(redirect_url)
 
+
 # 3. Xem chi tiết order
 @bp.route("/<int:order_id>", methods=["GET"])
 @my_permission("manager")
@@ -168,6 +170,7 @@ def get_order_detail_for_manager(order_id):
         return jsonify({"error": "Order not found"}), 404
 
     return jsonify(order_detail_schema.dump(order)), 200
+
 
 # 4. Xem chi tiết order của user
 @bp.route("/me/<int:order_id>", methods=["GET"])
@@ -183,6 +186,7 @@ def get_order_detail(order_id):
 
     return jsonify(order_detail_schema.dump(order)), 200
 
+
 # 5. Lấy danh sách order cho quản lý
 @bp.route("/", methods=["GET"])
 @my_permission("manager")
@@ -190,12 +194,15 @@ def get_orders_for_manager():
     params = request.args.to_dict()
     pagination = order_service.get_orders(**params)
 
-    return jsonify({
-        "items": order_list_schema.dump(pagination.items),
-        "total": pagination.total,
-        "page": pagination.page,
-        "pages": pagination.pages
-    })
+    return jsonify(
+        {
+            "items": order_list_schema.dump(pagination.items),
+            "total": pagination.total,
+            "page": pagination.page,
+            "pages": pagination.pages,
+        }
+    )
+
 
 # 6. Lấy danh sách order cho chính user
 @bp.route("/me", methods=["GET"])
@@ -207,12 +214,15 @@ def get_orders():
     # Thêm user id
     params["user_id"] = g.current_user.id
 
-    return jsonify({
-        "items": order_list_schema.dump(pagination.items),
-        "total": pagination.total,
-        "page": pagination.page,
-        "pages": pagination.pages
-    })
+    return jsonify(
+        {
+            "items": order_list_schema.dump(pagination.items),
+            "total": pagination.total,
+            "page": pagination.page,
+            "pages": pagination.pages,
+        }
+    )
+
 
 # 7. Thống kê số lượng và doanh thu theo tháng
 @bp.route("/stats/monthly/<int:year>")
@@ -220,15 +230,16 @@ def get_orders():
 def stats_monthly(year):
     return jsonify(order_service.revenue_by_month(year))
 
+
 # 8. Thống kê số lượng và doanh thu theo quý
 @bp.route("/stats/quarterly/<int:year>")
 @my_permission("manager")
 def stats_quarterly(year):
     return jsonify(order_service.revenue_by_quarter(year))
 
+
 # 9. Thống kê số lượng và doanh thu theo năm
 @bp.route("/stats/yearly")
 @my_permission("manager")
 def stats_yearly():
     return jsonify(order_service.revenue_by_year())
-

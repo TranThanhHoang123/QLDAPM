@@ -3,8 +3,10 @@ from app.extensions import db
 from app.models import User, Category
 from datetime import datetime
 from app.utils.jwt import JwtUtil
+
 app = create_app()
 jwt_util = JwtUtil()
+
 
 # Khởi tạo dữ liệu user mẫu
 def init_users():
@@ -20,7 +22,7 @@ def init_users():
             password=password_hash,
             role="admin",
             created_at=datetime.utcnow(),
-            updated_at=datetime.utcnow()
+            updated_at=datetime.utcnow(),
         )
 
         user2 = User(
@@ -31,7 +33,7 @@ def init_users():
             password=password_hash,
             role="user",
             created_at=datetime.utcnow(),
-            updated_at=datetime.utcnow()
+            updated_at=datetime.utcnow(),
         )
 
         user3 = User(
@@ -42,7 +44,7 @@ def init_users():
             password=password_hash,
             role="manager",
             created_at=datetime.utcnow(),
-            updated_at=datetime.utcnow()
+            updated_at=datetime.utcnow(),
         )
 
         db.session.add_all([user1, user2, user3])

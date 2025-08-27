@@ -1,6 +1,7 @@
 import os
 from werkzeug.utils import secure_filename
 
+
 def save_image(file, directory="events"):
     """
     Lưu file ảnh vào app/static/images/<directory>.

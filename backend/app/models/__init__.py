@@ -7,4 +7,14 @@ from .event import Event
 from .ticket import Ticket
 from .order import Order, OrderItem
 from .cart import Cart, CartItem
-__all__ = ["User","Category","Event","Ticket", "Order", "OrderItem", "Cart", "CartItem"]
+
+__all__ = [
+    "User",
+    "Category",
+    "Event",
+    "Ticket",
+    "Order",
+    "OrderItem",
+    "Cart",
+    "CartItem",
+]

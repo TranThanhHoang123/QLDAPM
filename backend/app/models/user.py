@@ -1,10 +1,13 @@
 from app.extensions import db
 import enum
 from .basemodel import BaseModel
+
+
 class UserRole(enum.Enum):
     admin = "admin"
     manager = "manager"
     user = "user"
+
 
 class User(BaseModel):
     __tablename__ = "users"

@@ -4,6 +4,7 @@ from app.models.ticket import TicketStatus
 from app.models.order import Order, OrderStatus
 from datetime import datetime, timedelta
 
+
 def release_expired_orders(app):
     with app.app_context():
         try:
@@ -11,7 +12,7 @@ def release_expired_orders(app):
             # Tìm các order pending quá 15 phút
             expired_orders = Order.query.filter(
                 Order.status == OrderStatus.PENDING,
-                Order.updated_at < now - timedelta(minutes=15)
+                Order.updated_at < now - timedelta(minutes=15),
             ).all()
 
             # print(f"[{now}] Checking expired orders... Found {len(expired_orders)} orders")
@@ -32,12 +33,15 @@ def release_expired_orders(app):
 
             if expired_orders:
                 db.session.commit()
-                print(f"[{datetime.utcnow()}] Released {len(expired_orders)} expired orders")
+                print(
+                    f"[{datetime.utcnow()}] Released {len(expired_orders)} expired orders"
+                )
             else:
                 print(f"[{datetime.utcnow()}] No expired orders to release")
 
         except Exception as e:
             print("Error in release_expired_orders:", e)
+
 
 def init_scheduler(app):
     scheduler = BackgroundScheduler()

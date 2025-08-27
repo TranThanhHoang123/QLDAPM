@@ -1,10 +1,10 @@
 import unittest
-from datetime import datetime
 from app import create_app
 from app.extensions import db
 from app.models import User
 from app.services.user_service import UserService
 from app.utils.jwt import JwtUtil
+
 
 class UserServiceTestCase(unittest.TestCase):
 
@@ -55,6 +55,7 @@ class UserServiceTestCase(unittest.TestCase):
 
         self.assertIsNone(result)
         self.assertEqual(error, "User not found")
+
 
 if __name__ == "__main__":
     unittest.main()

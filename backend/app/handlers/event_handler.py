@@ -5,7 +5,7 @@ from app.schemas.event import (
     EventCreateSchema,
     EventUpdateSchema,
     EventListSchema,
-    EventDetailSchema
+    EventDetailSchema,
 )
 from app.utils.helpers import save_image
 
@@ -25,12 +25,14 @@ def get_events():
     params = request.args.to_dict()
     pagination = event_service.get_events(**params)
 
-    return jsonify({
-        "items": event_list_schema.dump(pagination.items),
-        "total": pagination.total,
-        "page": pagination.page,
-        "pages": pagination.pages
-    })
+    return jsonify(
+        {
+            "items": event_list_schema.dump(pagination.items),
+            "total": pagination.total,
+            "page": pagination.page,
+            "pages": pagination.pages,
+        }
+    )
 
 
 # 2. Lấy chi tiết event
