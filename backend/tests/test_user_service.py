@@ -43,7 +43,7 @@ class UserServiceTestCase(unittest.TestCase):
         db.session.add(user)
         db.session.commit()
 
-        result, error = self.service.login("realuser", "1234567")
+        result, error = self.service.login("realuser", "123456")
 
         self.assertIsNone(error)
         self.assertEqual(result["user"]["username"], "realuser")
