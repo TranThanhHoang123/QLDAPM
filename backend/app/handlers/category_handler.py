@@ -31,11 +31,6 @@ def get_categories():
             "page": pagination.page,
             "pages": pagination.pages,
             "HELLO_DAY_LA_VERSION_CI_CD": pagination.pages,
-            "HELLO_DAY_LA_VERSIsssON_CI_CD1": pagination.pages,
-            "HELLO_DAY_LA_VERSION_CI_CD": pagination.pages,
-            "HELLO_DAY_LA_VERSION_CI_CD1": pagination.pages,
-            "HELLO_DAY_LA_VERSION_CI_CD": pagination.pages,
-            "HELLO_DAY_LA_VERSION_CI_CD1": pagination.pages,
         }
     )
 
