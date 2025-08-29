@@ -30,7 +30,8 @@ def get_categories():
             "total": pagination.total,
             "page": pagination.page,
             "pages": pagination.pages,
-            "pages11111111111111": pagination.pages,
+            "HELLO_DAY_LA_VERSION_CI_CD": pagination.pages,
+            "HELLO_DAY_LA_VERSION_CI_CD1": pagination.pages,
         }
     )
 

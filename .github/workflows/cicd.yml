@@ -1,6 +1,6 @@
 name: CI/CD
 
-# Trigger khi push vào main hoặc PR nhắm vào main
+# Trigger khi push vào main hoặc PR vào main
 on:
   pull_request:
     branches:

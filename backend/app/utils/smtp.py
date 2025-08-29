@@ -2,7 +2,7 @@ import smtplib
 import os
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from jinja2 import Environment, FileSystemLoader, select_autoescape
+from jinja2 import Environment, FileSystemLoader
 from datetime import datetime
 
 # Load biến môi trường
@@ -17,11 +17,11 @@ TEMPLATE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def render_template(template_name: str, context: dict) -> str:
     """Render file HTML template với data"""
-    # env = Environment(loader=FileSystemLoader(TEMPLATE_DIR))
-    env = Environment(
-        loader=FileSystemLoader(TEMPLATE_DIR),
-        autoescape=select_autoescape(["html", "xml"]),
-    )
+    env = Environment(loader=FileSystemLoader(TEMPLATE_DIR))
+    # env = Environment(
+    #     loader=FileSystemLoader(TEMPLATE_DIR),
+    #     autoescape=select_autoescape(["html", "xml"]),
+    # )
     template = env.get_template(template_name)
     return template.render(**context)
 
