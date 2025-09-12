@@ -6,7 +6,7 @@ from app.schemas.user import (
     UserDetailSchema,
     UserCreateSchema,
     UserUpdateSchema,
-    UserChangePasswordSchema
+    UserChangePasswordSchema,
 )
 
 bp = Blueprint("users", __name__, url_prefix="/user")
@@ -17,6 +17,7 @@ user_detail_schema = UserDetailSchema()
 user_create_schema = UserCreateSchema()
 user_update_schema = UserUpdateSchema()
 user_change_password_schema = UserChangePasswordSchema()
+
 
 @bp.route("/login", methods=["POST"])
 def login():
@@ -33,6 +34,7 @@ def login():
 
     return jsonify(result), 200
 
+
 @bp.route("/register", methods=["POST"])
 def register():
     data = request.get_json()
@@ -46,18 +48,22 @@ def register():
         return jsonify({"message": str(e)}), 400
     return user_detail_schema.dump(user), 201
 
+
 @bp.route("/", methods=["GET"])
 @my_permission("manager")
 def get_users():
     params = request.args.to_dict()
     pagination = user_service.get_users(**params)
 
-    return jsonify({
-        "items": user_list_schema.dump(pagination.items),
-        "total": pagination.total,
-        "page": pagination.page,
-        "pages": pagination.pages
-    })
+    return jsonify(
+        {
+            "items": user_list_schema.dump(pagination.items),
+            "total": pagination.total,
+            "page": pagination.page,
+            "pages": pagination.pages,
+        }
+    )
+
 
 @bp.route("/", methods=["POST"])
 @my_permission("admin")
@@ -72,6 +78,7 @@ def create_user():
     except ValueError as e:
         return jsonify({"message": str(e)}), 400
     return user_detail_schema.dump(user), 201
+
 
 @bp.route("/me", methods=["PUT"])
 @my_permission("user")
@@ -90,11 +97,13 @@ def update_user():
 
     return user_detail_schema.dump(user), 200
 
+
 @bp.route("/me", methods=["GET"])
 @my_permission("user")
 def get_profile():
     user = g.current_user
     return user_detail_schema.dump(user), 200
+
 
 @bp.route("/me/change-password", methods=["PUT"])
 @my_permission("user")
@@ -109,15 +118,14 @@ def change_password():
     new_password = data["new_password"]
 
     result, error = user_service.change_password(
-        user_id=g.current_user.id,
-        old_password=old_password,
-        new_password=new_password
+        user_id=g.current_user.id, old_password=old_password, new_password=new_password
     )
 
     if error:
         return jsonify({"message": error}), 400
 
     return jsonify(result), 200
+
 
 @bp.route("/<int:user_id>", methods=["DELETE"])
 @my_permission("admin")
@@ -127,15 +135,18 @@ def delete_user(user_id):
         return jsonify({"message": "User not found"}), 404
     return jsonify({"message": "User deleted successfully"})
 
+
 @bp.route("/stats/monthly/<int:year>")
 @my_permission("manager")
 def stats_user_monthly(year):
     return jsonify(user_service.count_by_month(year))
 
+
 @bp.route("/stats/quarterly/<int:year>")
 @my_permission("manager")
 def stats_user_quarterly(year):
     return jsonify(user_service.count_by_quarter(year))
+
 
 @bp.route("/stats/yearly")
 @my_permission("manager")

@@ -1,10 +1,10 @@
 import unittest
-from datetime import datetime
 from app import create_app
 from app.extensions import db
 from app.models import User
 from app.services.user_service import UserService
 from app.utils.jwt import JwtUtil
+
 
 class UserServiceTestCase(unittest.TestCase):
 
@@ -39,13 +39,11 @@ class UserServiceTestCase(unittest.TestCase):
             name="Administrator",
             password=password_hash,
             role="admin",
-            created_at=datetime.utcnow(),
-            updated_at=datetime.utcnow()
         )
         db.session.add(user)
         db.session.commit()
 
-        result, error = self.service.login("realuser", "123456")
+        result, error = self.service.login("realuser", "1234567")
 
         self.assertIsNone(error)
         self.assertEqual(result["user"]["username"], "realuser")
@@ -57,6 +55,7 @@ class UserServiceTestCase(unittest.TestCase):
 
         self.assertIsNone(result)
         self.assertEqual(error, "User not found")
+
 
 if __name__ == "__main__":
     unittest.main()

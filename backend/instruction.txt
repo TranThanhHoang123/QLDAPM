@@ -4,7 +4,7 @@ cd backend
 # Khởi tạo csdl 
 python init_db.py
 
-# chạy csdl 
+# chạy app 
 python main.py
 
 # push lên docker hub
@@ -14,3 +14,18 @@ docker push hoangtranthanh/qldapm-backend:latest
 
 # test
 python -m unittest discover -s tests -p "*.py" -v
+
+# deploy start command python3 render
+bash -c "python3 init_db.py && python3 main.py"
+
+# format lại code
+black --check app tests || exit 1
+
+# Lint code check lỗi syntax nghiêm trọng
+flake8 || exit 1
+
+# Scan security
+bandit -r ./app --severity-level high
+
+# Scan dependency vulnerabilities
+safety check -r requirements.txt

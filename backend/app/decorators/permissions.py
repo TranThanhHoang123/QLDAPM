@@ -5,6 +5,7 @@ from app.utils.jwt import JwtUtil
 
 jwt_util = JwtUtil()
 
+
 def my_permission(required_role):
     def decorator(f):
         @wraps(f)
@@ -13,7 +14,7 @@ def my_permission(required_role):
             auth_header = request.headers.get("Authorization")
             if not auth_header or not auth_header.startswith("Bearer "):
                 return jsonify({"message": "Missing or invalid token"}), 401
-            
+
             token = auth_header.split(" ")[1]
 
             try:
@@ -27,9 +28,11 @@ def my_permission(required_role):
                 g.current_user = user
 
                 # Lấy role hiện tại của user (Enum hoặc string)
-                user_role = user.role.value if hasattr(user.role, "value") else user.role
+                user_role = (
+                    user.role.value if hasattr(user.role, "value") else user.role
+                )
 
-                 # Check quyền
+                # Check quyền
                 if required_role == "user":
                     pass  # ai cũng được miễn là có đăng nhập
                 elif required_role == "manager":
@@ -45,4 +48,5 @@ def my_permission(required_role):
                 return jsonify({"message": str(e)}), 401
 
         return wrapper
+
     return decorator

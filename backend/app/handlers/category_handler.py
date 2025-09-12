@@ -5,7 +5,7 @@ from app.schemas.category import (
     CategoryCreateSchema,
     CategoryUpdateSchema,
     CategoryListSchema,
-    CategoryDetailSchema
+    CategoryDetailSchema,
 )
 
 bp = Blueprint("categories", __name__, url_prefix="/categories")
@@ -24,12 +24,24 @@ def get_categories():
     params = request.args.to_dict()
     pagination = category_service.get_categories(**params)
 
-    return jsonify({
-        "items": category_list_schema.dump(pagination.items),
-        "total": pagination.total,
-        "page": pagination.page,
-        "pages": pagination.pages
-    })
+    return jsonify(
+        {
+            "items": category_list_schema.dump(pagination.items),
+            "total": pagination.total,
+            "page": pagination.page,
+            "pages": pagination.pages,
+            "HELLO_DAY_LA_VERSION_CI_CD": pagination.pages,
+            "HELLO_DAY_LA_VERSION_CI_CD1": pagination.pages,
+            "HELLO_DAY_LA_VERSION_CI_CD": pagination.pages,
+            "HELLO_DAY_LA_VERSION_CI_CD1": pagination.pages,
+            "HELLO_DAY_LA_VERSION_CI_CD": pagination.pages,
+            "HELLO_DAY_LA_VERSION_CI_CD1": pagination.pages,
+            "HELLO_DAY_LA_VERSION_CI_CD": pagination.pages,
+            "HELLO_DAY_LA_VERSION_CI_CD1": pagination.pages,
+            "HELLO_DAY_LA_VERSION_CI_CD": pagination.pages,
+            "HELLO_DAY_LA_VERSION_CI_CD1": pagination.pages,
+        }
+    )
 
 
 # 2. Lấy chi tiết category

@@ -2,14 +2,16 @@ from flask import Flask
 from app.extensions import db, ma
 from app.scheduler import init_scheduler
 from app.handlers import (
-    user_handler,                       
-    category_handler, 
+    user_handler,
+    category_handler,
     event_handler,
     ticket_handler,
     order_handler,
     cart_handler,
-    )
+)
 from flask_cors import CORS
+
+
 def create_app(config_class="app.config.DevelopmentConfig"):
     app = Flask(__name__)
     app.config.from_object(config_class)

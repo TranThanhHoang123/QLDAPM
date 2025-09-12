@@ -1,0 +1,15 @@
+[flake8]
+# Cho phép dòng code dài tối đa 120 ký tự (mặc định chỉ 79, khá ngắn)
+max-line-length = 120
+
+# Bỏ qua các thư mục không cần lint (git, venv, build, migrations…)
+exclude = .git,__pycache__,venv,build,dist,migrations
+
+# Các rule bỏ qua (ignore)
+# - W503: line break trước toán tử (Black format chọn cách khác)
+# - C901: Hàm quá phức tạp
+ignore = W503, C901,
+
+# Tuỳ chọn nâng cao (optional):
+# hiển thị số lỗi tối đa (tránh spam màn hình)
+max-complexity = 10

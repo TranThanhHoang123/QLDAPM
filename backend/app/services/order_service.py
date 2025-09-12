@@ -5,9 +5,11 @@ from app.models.event import Event
 from app.services.ticket_service import TicketService
 from datetime import datetime, timedelta, timezone
 from sqlalchemy import func
+
+
 class OrderService:
     def __init__(self):
-         self.ticket_service = TicketService()
+        self.ticket_service = TicketService()
 
     def get_orders(self, **kwargs):
         query = Order.query
@@ -19,7 +21,7 @@ class OrderService:
         if "status" in kwargs and kwargs["status"]:
             status = OrderStatus(kwargs["status"])
             query = query.filter(Order.status == status)
-        
+
         if "payment_method" in kwargs and kwargs["payment_method"]:
             method = PaymentMethod(kwargs["payment_method"])
             query = query.filter(Order.payment_method == method)
@@ -56,7 +58,10 @@ class OrderService:
                 event_time = event_time.replace(tzinfo=vn_tz)
 
             if now > event_time - timedelta(minutes=30):
-                return False, f"Cannot create order: Event '{event.title}' must be booked at least 30 minutes before start"
+                return (
+                    False,
+                    f"Cannot create order: Event '{event.title}' must be booked at least 30 minutes before start",
+                )
 
         return True, None
 
@@ -75,7 +80,7 @@ class OrderService:
                 event_id=item["event_id"],
                 ticket_type=item["ticket_type"],
                 quantity=item["quantity"],
-                user_id=user_id
+                user_id=user_id,
             )
             if error:
                 return None, error
@@ -87,7 +92,7 @@ class OrderService:
             user_id=user_id,
             status=OrderStatus.PENDING,
             payment_method=PaymentMethod(payment_method),
-            total_amount=0  # sẽ cập nhật sau
+            total_amount=0,  # sẽ cập nhật sau
         )
         db.session.add(order)
         db.session.flush()  # lấy order.id
@@ -108,7 +113,7 @@ class OrderService:
 
         db.session.commit()
         return order, None
-    
+
     def payment_success(self, order_id):
         order = Order.query.get(order_id)
         if not order:
@@ -208,4 +213,3 @@ class OrderService:
             {"year": int(year), "revenue": float(revenue or 0), "orders": orders}
             for year, revenue, orders in data
         ]
-     

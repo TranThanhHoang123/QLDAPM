@@ -3,6 +3,7 @@ import requests
 import hmac
 import hashlib
 import time
+
 # ========== CONFIG ==========
 ENDPOINT = "https://test-payment.momo.vn/v2/gateway/api/create"
 ACCESS_KEY = "F8BBA842ECF85"
@@ -14,7 +15,9 @@ STORE_ID = "Test Store"
 LANG = "vi"
 
 
-def generate_signature(order_id, request_id, amount, redirect_url, request_type="captureWallet"):
+def generate_signature(
+    order_id, request_id, amount, redirect_url, request_type="captureWallet"
+):
     """Tạo chữ ký HMAC SHA256"""
     raw_signature = (
         f"accessKey={ACCESS_KEY}"
@@ -30,14 +33,14 @@ def generate_signature(order_id, request_id, amount, redirect_url, request_type=
     )
 
     h = hmac.new(
-        SECRET_KEY.encode("utf-8"),
-        raw_signature.encode("utf-8"),
-        hashlib.sha256
+        SECRET_KEY.encode("utf-8"), raw_signature.encode("utf-8"), hashlib.sha256
     )
     return h.hexdigest()
 
 
-def build_request_data(order_id, request_id, amount, redirect_url, signature, request_type="captureWallet"):
+def build_request_data(
+    order_id, request_id, amount, redirect_url, signature, request_type="captureWallet"
+):
     """Tạo payload JSON gửi MoMo"""
     return {
         "partnerCode": PARTNER_CODE,
@@ -52,7 +55,7 @@ def build_request_data(order_id, request_id, amount, redirect_url, signature, re
         "orderInfo": f"Thanh toan don hang {order_id}",
         "requestId": request_id,
         "extraData": "",
-        "signature": signature
+        "signature": signature,
     }
 
 
@@ -64,24 +67,13 @@ def create_payment(order_id: str, amount: str, return_url: str):
     unique_order_id = f"{order_id}_{int(time.time())}"
 
     amount = str(int(float(amount)))
-    signature = generate_signature(
-        unique_order_id,
-        request_id,
-        amount,
-        return_url
-    )
+    signature = generate_signature(unique_order_id, request_id, amount, return_url)
 
     payload = build_request_data(
-        unique_order_id,
-        request_id,
-        amount,
-        return_url,
-        signature
+        unique_order_id, request_id, amount, return_url, signature
     )
 
     response = requests.post(
-        ENDPOINT,
-        json=payload,
-        headers={"Content-Type": "application/json"}
+        ENDPOINT, json=payload, headers={"Content-Type": "application/json"}
     )
     return response.json()

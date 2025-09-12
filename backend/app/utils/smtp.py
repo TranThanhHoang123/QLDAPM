@@ -3,6 +3,7 @@ import os
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from jinja2 import Environment, FileSystemLoader
+from datetime import datetime
 
 # Load biến môi trường
 SMTP_SERVER = os.getenv("SMTP_SERVER", "smtp.gmail.com")
@@ -17,6 +18,10 @@ TEMPLATE_DIR = os.path.dirname(os.path.abspath(__file__))
 def render_template(template_name: str, context: dict) -> str:
     """Render file HTML template với data"""
     env = Environment(loader=FileSystemLoader(TEMPLATE_DIR))
+    # env = Environment(
+    #     loader=FileSystemLoader(TEMPLATE_DIR),
+    #     autoescape=select_autoescape(["html", "xml"]),
+    # )
     template = env.get_template(template_name)
     return template.render(**context)
 
@@ -48,29 +53,29 @@ def send_payment_success_email(to_email: str, context: dict):
     send_email(to_email, subject, html_content)
 
 
-from datetime import datetime
-
 def build_payment_success_context(order: dict) -> dict:
     """Convert order detail JSON -> context cho email template"""
 
     user = order["user"]
     items = []
-    
+
     # Duyệt items
     for idx, item in enumerate(order["items"], start=1):
         ticket = item["ticket"]
         event = ticket["event"]
-        items.append({
-            "index": idx,
-            "event_title": event["title"],
-            "event_start": event["start_time"],
-            "event_end": event["end_time"],
-            "event_location": event["location"],
-            "ticket_type": ticket["type"],
-            "price_vnd": f"{int(float(item['price'])):,} VND",
-            "ticket_status": ticket["status"],
-            "event_image": event["image"],
-        })
+        items.append(
+            {
+                "index": idx,
+                "event_title": event["title"],
+                "event_start": event["start_time"],
+                "event_end": event["end_time"],
+                "event_location": event["location"],
+                "ticket_type": ticket["type"],
+                "price_vnd": f"{int(float(item['price'])):,} VND",
+                "ticket_status": ticket["status"],
+                "event_image": event["image"],
+            }
+        )
 
     # Build kết quả trả về
     context = {

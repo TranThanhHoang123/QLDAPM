@@ -4,6 +4,8 @@ from app.models.user import User, UserRole
 from datetime import datetime, timedelta
 from app.utils.jwt import JwtUtil
 from sqlalchemy.exc import IntegrityError
+
+
 class UserService:
     def __init__(self):
         self.jwt_util = JwtUtil()
@@ -49,8 +51,8 @@ class UserService:
                 raise ValueError("Username already exists")
             elif "email" in msg:
                 raise ValueError("Email already exists")
-    
-    def register(self, **data):        
+
+    def register(self, **data):
         # Hash password nếu có
         data["password"] = self.jwt_util.hash_password(data["password"])
 
@@ -85,13 +87,12 @@ class UserService:
 
     def delete_user(self, user_id):
         user = User.query.filter(
-            User.id == user_id,
-            User.role != "admin"  # Chỉ lấy user không phải admin
+            User.id == user_id, User.role != "admin"  # Chỉ lấy user không phải admin
         ).first()
-        
+
         if not user:
             return False
-        
+
         db.session.delete(user)
         db.session.commit()
         return True
@@ -108,7 +109,9 @@ class UserService:
 
         # 3. Tạo token
         token = self.jwt_util.parse_id_to_token(user.id)
-        expired_at = datetime.utcnow() + timedelta(minutes=self.jwt_util.token_expire_minutes)
+        expired_at = datetime.utcnow() + timedelta(
+            minutes=self.jwt_util.token_expire_minutes
+        )
 
         return {
             "token": token,
@@ -117,10 +120,10 @@ class UserService:
                 "id": user.id,
                 "username": user.username,
                 "email": user.email,
-                "role": user.role.value if user.role else None
-            }
+                "role": user.role.value if user.role else None,
+            },
         }, None
-    
+
     def change_password(self, user_id, old_password, new_password):
         # 1. Tìm user theo ID
         user = User.query.get(user_id)
@@ -140,16 +143,16 @@ class UserService:
         db.session.commit()
 
         return {"message": "Password changed successfully"}, None
-    
+
     def count_by_month(self, year):
         """Số lượng khách hàng (role=user) đăng ký theo tháng"""
         data = (
             db.session.query(
                 func.extract("month", User.created_at).label("month"),
-                func.count(User.id).label("count")
+                func.count(User.id).label("count"),
             )
             .filter(func.extract("year", User.created_at) == year)
-            .filter(User.role == UserRole.user)   # chỉ lấy khách hàng
+            .filter(User.role == UserRole.user)  # chỉ lấy khách hàng
             .group_by(func.extract("month", User.created_at))
             .order_by("month")
             .all()
@@ -161,10 +164,10 @@ class UserService:
         data = (
             db.session.query(
                 func.ceil(func.extract("month", User.created_at) / 3).label("quarter"),
-                func.count(User.id).label("count")
+                func.count(User.id).label("count"),
             )
             .filter(func.extract("year", User.created_at) == year)
-            .filter(User.role == UserRole.user)   # lọc khách hàng
+            .filter(User.role == UserRole.user)  # lọc khách hàng
             .group_by("quarter")
             .order_by("quarter")
             .all()
@@ -176,9 +179,9 @@ class UserService:
         data = (
             db.session.query(
                 func.extract("year", User.created_at).label("year"),
-                func.count(User.id).label("count")
+                func.count(User.id).label("count"),
             )
-            .filter(User.role == UserRole.user)   # lọc khách hàng
+            .filter(User.role == UserRole.user)  # lọc khách hàng
             .group_by(func.extract("year", User.created_at))
             .order_by("year")
             .all()
