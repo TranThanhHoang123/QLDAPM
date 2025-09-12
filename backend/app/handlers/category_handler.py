@@ -32,6 +32,14 @@ def get_categories():
             "pages": pagination.pages,
             "HELLO_DAY_LA_VERSION_CI_CD": pagination.pages,
             "HELLO_DAY_LA_VERSION_CI_CD1": pagination.pages,
+            "HELLO_DAY_LA_VERSION_CI_CD": pagination.pages,
+            "HELLO_DAY_LA_VERSION_CI_CD1": pagination.pages,
+            "HELLO_DAY_LA_VERSION_CI_CD": pagination.pages,
+            "HELLO_DAY_LA_VERSION_CI_CD1": pagination.pages,
+            "HELLO_DAY_LA_VERSION_CI_CD": pagination.pages,
+            "HELLO_DAY_LA_VERSION_CI_CD1": pagination.pages,
+            "HELLO_DAY_LA_VERSION_CI_CD": pagination.pages,
+            "HELLO_DAY_LA_VERSION_CI_CD1": pagination.pages,
         }
     )
 
