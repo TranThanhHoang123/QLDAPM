@@ -3,7 +3,7 @@ from app.models import Event
 from marshmallow import fields, validate
 from flask import request
 from app.schemas.category import CategoryListSchema
-
+from app.models.ticket import TicketStatus, TicketType
 
 # Base Schema
 class EventBaseSchema(ma.SQLAlchemyAutoSchema):
@@ -12,6 +12,7 @@ class EventBaseSchema(ma.SQLAlchemyAutoSchema):
     end_time = fields.DateTime(format="%Y-%m-%d %H:%M:%S")
     image = fields.Method("get_image")
     category = fields.Nested(CategoryListSchema)
+    available_ticket_counts = fields.Method("get_available_ticket_counts")
 
     class Meta:
         model = Event
@@ -25,6 +26,13 @@ class EventBaseSchema(ma.SQLAlchemyAutoSchema):
         base_url = request.host_url.rstrip("/")
         # trả về full url
         return f"{base_url}/static/{obj.image}"
+    
+    def get_available_ticket_counts(self, obj):
+        counts = {t.value: 0 for t in TicketType}
+        for ticket in obj.tickets:
+            if ticket.status == TicketStatus.AVAILABLE:
+                counts[ticket.type.value] += 1
+        return counts
 
 
 # 1. Create Event Schema
