@@ -5,6 +5,7 @@ from flask import request
 from app.schemas.category import CategoryListSchema
 from app.models.ticket import TicketStatus, TicketType
 
+
 # Base Schema
 class EventBaseSchema(ma.SQLAlchemyAutoSchema):
     # Format datetime khi dump/load
@@ -26,7 +27,7 @@ class EventBaseSchema(ma.SQLAlchemyAutoSchema):
         base_url = request.host_url.rstrip("/")
         # trả về full url
         return f"{base_url}/static/{obj.image}"
-    
+
     def get_available_ticket_counts(self, obj):
         counts = {t.value: 0 for t in TicketType}
         for ticket in obj.tickets:

@@ -21,7 +21,7 @@ def create_app(config_class="app.config.DevelopmentConfig"):
         resources={r"/*": {"origins": "*"}},
         supports_credentials=True,
         allow_headers=["Content-Type", "Authorization"],
-        methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+        methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     )
     db.init_app(app)
     ma.init_app(app)
