@@ -5,7 +5,8 @@ from app.models.event import Event
 from app.services.ticket_service import TicketService
 from datetime import datetime, timedelta, timezone
 from sqlalchemy import func
-
+import logging
+from flask import current_app
 
 class OrderService:
     def __init__(self):
@@ -115,49 +116,64 @@ class OrderService:
         return order, None
 
     def payment_success(self, order_id):
+        current_app.logger.info(f"[payment_success] Bắt đầu xử lý order_id={order_id}")
         order = Order.query.get(order_id)
+
         if not order:
+            current_app.logger.warning(f"[payment_success] Không tìm thấy order_id={order_id}")
             return None, "Order not found"
 
         if order.status != OrderStatus.PENDING:
+            current_app.logger.warning(f"[payment_success] Order {order_id} đã được xử lý trước đó. Trạng thái={order.status}")
             return None, "Order already processed"
 
         try:
-            # Cập nhật trạng thái order
             order.status = OrderStatus.PAID
-            # Lấy tất cả ticket từ order_items
+            current_app.logger.info(f"[payment_success] Order {order_id} đổi trạng thái -> PAID")
+
             for item in order.items:
                 ticket = item.ticket
                 if ticket.status == TicketStatus.RESERVED:
                     ticket.status = TicketStatus.SOLD
+                    current_app.logger.info(f"[payment_success] Ticket {ticket.id} đổi trạng thái -> SOLD")
 
             db.session.commit()
+            current_app.logger.info(f"[payment_success] Commit thành công cho order_id={order_id}")
             return order, None
         except Exception as e:
+            current_app.logger.error(f"[payment_success] Lỗi khi xử lý order_id={order_id}: {str(e)}")
             return None, str(e)
 
     def payment_failed(self, order_id):
+        current_app.logger.info(f"[payment_failed] Bắt đầu xử lý order_id={order_id}")
         order = Order.query.get(order_id)
+
         if not order:
+            current_app.logger.warning(f"[payment_failed] Không tìm thấy order_id={order_id}")
             return None, "Order not found"
 
         if order.status != OrderStatus.PENDING:
+            current_app.logger.warning(f"[payment_failed] Order {order_id} đã được xử lý trước đó. Trạng thái={order.status}")
             return None, "Order already processed"
 
         try:
             order.status = OrderStatus.CANCELLED
+            current_app.logger.info(f"[payment_failed] Order {order_id} đổi trạng thái -> CANCELLED")
 
             for item in order.items:
                 ticket = item.ticket
                 if ticket.status == TicketStatus.RESERVED:
                     ticket.status = TicketStatus.AVAILABLE
                     ticket.user_id = None
+                    current_app.logger.info(f"[payment_failed] Ticket {ticket.id} trả về trạng thái -> AVAILABLE")
 
             db.session.commit()
+            current_app.logger.info(f"[payment_failed] Commit thành công cho order_id={order_id}")
             return order, None
         except Exception as e:
+            current_app.logger.error(f"[payment_failed] Lỗi khi xử lý order_id={order_id}: {str(e)}")
             return None, str(e)
-
+        
     def revenue_by_month(self, year):
         """Doanh thu + số đơn theo tháng trong 1 năm"""
         data = (
