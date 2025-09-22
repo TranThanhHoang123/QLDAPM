@@ -108,15 +108,17 @@ def vnpay_return():
         return jsonify({"error": "Invalid return data"}), 400
 
     if transaction_status == "00":  # Thanh toán thành công
-        order, error = order_service.payment_success(order_id)
+        _, error = order_service.payment_success(order_id)
         # Chuyển order sang dạng detail
+        order = order_service.get_order(order_id)
         order_data = order_detail_schema.dump(order)
 
         # mapping sang context
         context = build_payment_success_context(order_data)
         send_payment_success_email(order_data["user"]["email"], context)
     else:
-        order, error = order_service.payment_failed(order_id)
+        _, error = order_service.payment_failed(order_id)
+        order = order_service.get_order(order_id)
 
     if error:
         return jsonify({"error": error}), 400
@@ -141,8 +143,9 @@ def momo_return():
 
     if result_code == "0":
         # Thanh toán thành công
-        order, error = order_service.payment_success(order_id)
+        _, error = order_service.payment_success(order_id)
         # Chuyển order sang dạng detail
+        order = order_service.get_order(order_id)
         order_data = order_detail_schema.dump(order)
 
         # mapping sang context
@@ -150,7 +153,8 @@ def momo_return():
         send_payment_success_email(order_data["user"]["email"], context)
     else:
         # Thanh toán thất bại
-        order, error = order_service.payment_failed(order_id)
+        _, error = order_service.payment_failed(order_id)
+        order = order_service.get_order(order_id)
 
     # Nếu có lỗi thì trả về ngay
     if error:
