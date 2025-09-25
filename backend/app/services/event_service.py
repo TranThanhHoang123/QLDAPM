@@ -27,6 +27,9 @@ class EventService:
         if "category_id" in kwargs and kwargs["category_id"]:
             query = query.filter(Event.category_id == kwargs["category_id"])
 
+        # Sắp xếp theo thời gian tạo mới nhất
+        query = query.order_by(Event.created_at.desc())
+
         # Phân trang
         try:
             page = int(kwargs.get("page", 1))

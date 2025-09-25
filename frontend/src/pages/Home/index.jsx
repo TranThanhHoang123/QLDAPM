@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react"
-import { Header } from "../../components/header"
-import { HeroSection } from "../../components/hero-section"
-import { EventsSection } from "../../components/events-section"
+import { HeroSection } from "@/components/hero-section"
+import { SearchBar } from "@/components/search-bar"
+import { EventsSection } from "@/components/events-section"
 import categoryService from "../../services/categoryService"
 import eventService from "../../services/eventService"
+import { Layout } from "../layout"
 
 export default function Home() {
   const [categories, setCategories] = useState([])
@@ -29,6 +30,7 @@ export default function Home() {
           title: e.title,
           image: e.image,
           location: e.location,
+          available_ticket_counts: e.available_ticket_counts || {},
           date: new Date(e.start_time).toLocaleString("vi-VN"),
           category: e.category?.name || "Uncategorized",
         }))
@@ -55,13 +57,13 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header
-        onSearch={(searchFilters) =>
-          setFilters((prev) => ({ ...prev, ...searchFilters }))
-        }
-      />
+    <Layout>
       <HeroSection />
+      <SearchBar
+        initialFilters={filters}
+        onSearch={(newFilters) => setFilters(newFilters)} // ✅ update filters => trigger useEffect => call API
+        onReset={() => setFilters({})}                   // ✅ reset về rỗng
+      />
       {loading ? (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
           <div className="animate-spin rounded-full h-12 w-12 border-4 border-white border-t-transparent"></div>
@@ -74,6 +76,6 @@ export default function Home() {
           onCategoryChange={handleCategoryChange}
         />
       )}
-    </div>
+    </Layout>
   )
 }

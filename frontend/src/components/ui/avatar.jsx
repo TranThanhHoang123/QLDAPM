@@ -1,21 +1,33 @@
-export function Avatar({ children, className }) {
-  return (
-    <div className={`relative flex items-center justify-center overflow-hidden rounded-full bg-gray-200 ${className}`}>
-      {children}
-    </div>
-  )
-}
+import * as React from "react"
+import * as AvatarPrimitive from "@radix-ui/react-avatar"
 
-export function AvatarImage({ src, alt }) {
-  return (
-    <img src={src} alt={alt} className="h-full w-full object-cover" />
-  )
-}
+import { cn } from "@/lib/utils"
 
-export function AvatarFallback({ children, className }) {
-  return (
-    <div className={`flex h-full w-full items-center justify-center text-sm font-medium ${className}`}>
-      {children}
-    </div>
-  )
-}
+const Avatar = React.forwardRef(({ className, ...props }, ref) => (
+  <AvatarPrimitive.Root
+    ref={ref}
+    className={cn("relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full", className)}
+    {...props} />
+))
+Avatar.displayName = AvatarPrimitive.Root.displayName
+
+const AvatarImage = React.forwardRef(({ className, ...props }, ref) => (
+  <AvatarPrimitive.Image
+    ref={ref}
+    className={cn("aspect-square h-full w-full", className)}
+    {...props} />
+))
+AvatarImage.displayName = AvatarPrimitive.Image.displayName
+
+const AvatarFallback = React.forwardRef(({ className, ...props }, ref) => (
+  <AvatarPrimitive.Fallback
+    ref={ref}
+    className={cn(
+      "flex h-full w-full items-center justify-center rounded-full bg-muted",
+      className
+    )}
+    {...props} />
+))
+AvatarFallback.displayName = AvatarPrimitive.Fallback.displayName
+
+export { Avatar, AvatarImage, AvatarFallback }

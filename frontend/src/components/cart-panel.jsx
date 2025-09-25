@@ -1,32 +1,45 @@
-import { X, Minus, Plus, Trash2 } from "lucide-react"
-import { Button } from "./ui/button"
-import { Badge } from "./ui/badge"
+import { X, Trash2 } from "lucide-react";
+import { Button } from "./ui/button";
+import { Badge } from "./ui/badge";
+import cartService from "../services/cartService";
+import { useCart } from "../contexts/CartContext"
+import toast from "react-hot-toast"
+export function CartPanel({ isOpen, onClose }) {
+  const { cartData, setCartData } = useCart()
+  const handleRemoveItem = async (itemId) => {
+    try {
+      await cartService.removeTicket(itemId);
 
-export function CartPanel({ isOpen, onClose, cartData }) {
-  const handleQuantityChange = (itemId, newQuantity) => {
-    // Handle quantity update logic
-    console.log(`[v0] Updating item ${itemId} quantity to ${newQuantity}`)
-  }
-
-  const handleRemoveItem = (itemId) => {
-    // Handle item removal logic
-    console.log(`[v0] Removing item ${itemId}`)
-  }
+      // cập nhật lại list item trong giỏ
+      setCartData((prev) => ({
+        ...prev,
+        items: prev.items.filter((item) => item.id !== itemId),
+      }));
+      toast.success("Xóa thành công");
+    } catch (err) {
+      toast.error("Lỗi khi xóa item:", err);
+    }
+  };
 
   const calculateTotal = () => {
-    // Mock price calculation - in real app, you'd have price data
     return cartData.items.reduce((total, item) => {
-      const mockPrice = item.ticket_type === "VIP" ? 150000 : 100000
-      return total + mockPrice * item.quantity
-    }, 0)
-  }
+      const mockPrice = item.ticket_type === "VIP" ? 150000 : 100000;
+      return total + mockPrice * item.quantity;
+    }, 0);
+  };
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat("vi-VN", {
       style: "currency",
       currency: "VND",
-    }).format(price)
-  }
+    }).format(price);
+  };
+
+  const isEmpty =
+    !cartData ||
+    cartData.message === "Cart is empty" ||
+    !cartData.items ||
+    cartData.items.length === 0;
 
   return (
     <>
@@ -54,68 +67,42 @@ export function CartPanel({ isOpen, onClose, cartData }) {
 
         {/* Cart Items */}
         <div className="flex-1 overflow-y-auto p-4">
-          {cartData.items.length === 0 ? (
+          {isEmpty ? (
             <div className="text-center py-8">
-              <p className="text-gray-500">Your cart is empty</p>
+              <p className="text-gray-500">Chưa có vé nào trong giỏ hàng</p>
             </div>
           ) : (
             <div className="space-y-4">
               {cartData.items.map((item) => (
                 <div key={item.id} className="bg-gray-50 rounded-lg p-4">
-                  <div className="flex justify-between items-start mb-2">
+                  <div className="flex justify-between items-center mb-2">
                     <h3 className="font-medium text-gray-900 text-sm">
-                      {item.event.title}
+                      {item.event.name}
                     </h3>
                     <Button
                       variant="ghost"
-                      size="sm"
+                      size="icon"
                       onClick={() => handleRemoveItem(item.id)}
-                      className="text-red-500 hover:text-red-700 h-6 w-6 p-0"
+                      className="text-red-500 hover:text-red-700 h-8 w-8 flex items-center justify-center"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
 
-                  <Badge variant="secondary" className="mb-3">
+                  <Badge variant="secondary" className="mb-2">
                     {item.ticket_type}
                   </Badge>
 
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() =>
-                          handleQuantityChange(
-                            item.id,
-                            Math.max(1, item.quantity - 1)
-                          )
-                        }
-                        className="h-8 w-8 p-0"
-                      >
-                        <Minus className="h-3 w-3" />
-                      </Button>
-                      <span className="text-sm font-medium w-8 text-center">
-                        {item.quantity}
-                      </span>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() =>
-                          handleQuantityChange(item.id, item.quantity + 1)
-                        }
-                        className="h-8 w-8 p-0"
-                      >
-                        <Plus className="h-3 w-3" />
-                      </Button>
-                    </div>
-
-                    <div className="text-sm font-semibold text-gray-900">
+                    <span className="text-sm font-medium">
+                      Số lượng: {item.quantity}
+                    </span>
+                    <span className="text-sm font-semibold text-gray-900">
                       {formatPrice(
                         (item.ticket_type === "VIP" ? 150000 : 100000) *
                           item.quantity
                       )}
-                    </div>
+                    </span>
                   </div>
                 </div>
               ))}
@@ -124,7 +111,7 @@ export function CartPanel({ isOpen, onClose, cartData }) {
         </div>
 
         {/* Footer */}
-        {cartData.items.length > 0 && (
+        {!isEmpty && (
           <div className="border-t p-4 space-y-4">
             <div className="flex justify-between items-center">
               <span className="text-lg font-semibold text-gray-900">Total:</span>
@@ -140,5 +127,5 @@ export function CartPanel({ isOpen, onClose, cartData }) {
         )}
       </div>
     </>
-  )
+  );
 }

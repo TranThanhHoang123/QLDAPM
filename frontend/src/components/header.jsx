@@ -1,42 +1,16 @@
 import { useEffect, useState } from "react"
-import { Search, ShoppingCart } from "lucide-react"
+import { ShoppingCart } from "lucide-react"
 import { Button } from "./ui/button"
-import { Input } from "./ui/input"
 import { UserDropdown } from "./user-dropdown"
 import { CartPanel } from "./cart-panel"
-
-export function Header({ onSearch }) {
+import { useCart } from "../contexts/CartContext"
+export function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [user, setUser] = useState(null)
 
-  const [filters, setFilters] = useState({
-    title: "",
-    location: "",
-    start_time: "",
-    end_time: "",
-  })
  const [isCartOpen, setIsCartOpen] = useState(false)
- // Mock cart data - thay bằng data thực khi tích hợp backend
-  const [cartData, setCartData] = useState({
-    id: 1,
-    user_id: 5,
-    items: [
-      {
-        id: 1,
-        event_id: 1,
-        ticket_type: "VIP",
-        quantity: 2,
-        event: { title: "Concert A" },
-      },
-      {
-        id: 2,
-        event_id: 2,
-        ticket_type: "Standard",
-        quantity: 1,
-        event: { title: "Concert B" },
-      },
-    ],
-  })
+ 
+  const { cartData } = useCart()
   useEffect(() => {
     const token = localStorage.getItem("token")
     const expiredAt = localStorage.getItem("expired_at")
@@ -58,17 +32,6 @@ export function Header({ onSearch }) {
       }
     }
   }, [])
-
-  const handleChange = (e) => {
-    const { name, value } = e.target
-    setFilters((prev) => ({ ...prev, [name]: value }))
-  }
-
-  const handleSearch = () => {
-    if (onSearch) {
-      onSearch(filters)
-    }
-  }
 
   return (
     <header className="bg-white shadow-sm border-b border-border">
@@ -136,72 +99,9 @@ export function Header({ onSearch }) {
             <CartPanel
             isOpen={isCartOpen}
             onClose={() => setIsCartOpen(false)}
-            cartData={cartData}
-            />
-          {/* Search row */}
-        <div className="flex flex-wrap gap-3 items-center justify-center">
-        <div className="relative flex-1 min-w-[200px]">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-            <Input
-            type="text"
-            name="title"
-            placeholder="Search for events, artists..."
-            value={filters.title}
-            onChange={handleChange}
-            className="pl-10 pr-4 py-2 w-full bg-gray-50 border-gray-200 focus:bg-white"
             />
         </div>
-
-        <Input
-            type="text"
-            name="location"
-            placeholder="Location..."
-            value={filters.location}
-            onChange={handleChange}
-            className="w-40"
-        />
-
-        <div className="flex gap-3 w-full">
-            <Input
-                type="datetime-local"
-                name="start_time"
-                value={filters.start_time}
-                onChange={handleChange}
-                className="flex-1 min-w-[220px]"
-            />
-            <Input
-                type="datetime-local"
-                name="end_time"
-                value={filters.end_time}
-                onChange={handleChange}
-                className="flex-1 min-w-[220px]"
-            />
         </div>
-
-        <Button onClick={handleSearch} className="bg-blue-600 text-white">
-            Search
-        </Button>
-
-        <Button
-            variant="outline"
-            onClick={() => {
-            const cleared = {
-                title: "",
-                location: "",
-                start_time: "",
-                end_time: "",
-            }
-            setFilters(cleared)
-            if (onSearch) {
-                onSearch(cleared)
-            }
-            }}
-        >
-            Reset
-        </Button>
-        </div>
-        </div>
-      </div>
     </header>
   )
 }
