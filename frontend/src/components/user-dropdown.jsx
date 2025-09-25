@@ -1,4 +1,4 @@
-import { LogOut, Eye } from "lucide-react"
+import { LogOut, Eye, List, Ticket } from "lucide-react"
 import { Button } from "./ui/button"
 import {
   DropdownMenu,
@@ -49,6 +49,14 @@ export function UserDropdown({ isLoggedIn, user }) {
         <DropdownMenuItem onClick={handleViewDetails}>
           <Eye className="mr-2 h-4 w-4" />
           <span>Profile</span>
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => (window.location.href = "/orders")}>
+          <List className="mr-2 h-4 w-4" />
+          <span>Orders</span>
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => (window.location.href = "/ticket")}>
+          <Ticket className="mr-2 h-4 w-4" />
+          <span>Ticket</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem

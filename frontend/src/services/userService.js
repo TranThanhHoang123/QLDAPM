@@ -15,6 +15,9 @@ const userService = {
 
   changePassword: (old_password, new_password) =>
     apiClient.put("/user/me/change-password", {old_password, new_password}),
+
+  getList: (params) => apiClient.get("/user/", { params }),
+  createManager: (data) => apiClient.post("/user/", data),
 };
 
 export default userService;

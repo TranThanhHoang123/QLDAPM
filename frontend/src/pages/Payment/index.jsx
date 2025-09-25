@@ -1,5 +1,9 @@
 function Payment() {
-  return <h1>Payment Page</h1>;
+
+  return (
+    <div>
+    </div>
+  )
 }
 
-export default Payment;
+export default Payment

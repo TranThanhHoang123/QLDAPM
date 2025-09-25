@@ -31,8 +31,8 @@ export function EventsSection({ categories = [], events = [], activeCategory = 0
         {/* Events grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {events.map((event) => (
-            <Card
-              key={event.id}
+            <a key={event.id} href={`/event/${event.id}`} className="block">
+               <Card
               className="overflow-hidden hover:shadow-xl transition-shadow duration-300 cursor-pointer rounded-xl"
             >
               <div className="relative">
@@ -52,8 +52,21 @@ export function EventsSection({ categories = [], events = [], activeCategory = 0
                 <p className="text-sm text-gray-500">
                   {event.location} — {event.date}
                 </p>
+                {/* Ticket availability */}
+                <div className="space-y-1 text-sm mt-2">
+                  {event.available_ticket_counts &&
+                    Object.entries(event.available_ticket_counts).map(([type, count]) => (
+                      <p
+                        key={type}
+                        className={count > 0 ? "text-green-600" : "text-red-500"}
+                      >
+                        {type}: {count > 0 ? `${count} vé còn lại` : "Hết vé"}
+                      </p>
+                    ))}
+                </div>
               </CardContent>
             </Card>
+            </a>
           ))}
         </div>
       </div>
