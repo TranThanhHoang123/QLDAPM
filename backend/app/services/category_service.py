@@ -11,6 +11,9 @@ class CategoryService:
         if "name" in kwargs and kwargs["name"]:
             query = query.filter(Category.name.ilike(f"%{kwargs['name']}%"))
 
+        # Sắp xếp theo thời gian tạo mới nhất
+        query = query.order_by(Category.created_at.desc())
+
         try:
             page = int(kwargs.get("page", 1))
         except ValueError:

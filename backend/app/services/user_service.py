@@ -20,6 +20,9 @@ class UserService:
         if "email" in kwargs and kwargs["email"]:
             query = query.filter(User.email == kwargs["email"])
 
+        # Sắp xếp theo thời gian tạo mới nhất
+        query = query.order_by(User.created_at.desc())
+
         try:
             page = int(kwargs.get("page", 1))
         except ValueError:

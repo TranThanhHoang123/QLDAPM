@@ -37,6 +37,9 @@ class TicketService:
             except ValueError:
                 pass
 
+        # Sắp xếp theo thời gian tạo mới nhất
+        query = query.order_by(Ticket.created_at.desc())
+
         # Phân trang
         try:
             page = int(kwargs.get("page", 1))

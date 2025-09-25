@@ -27,6 +27,9 @@ class OrderService:
             method = PaymentMethod(kwargs["payment_method"])
             query = query.filter(Order.payment_method == method)
 
+        # Sắp xếp theo thời gian tạo mới nhất
+        query = query.order_by(Order.created_at.desc())
+
         # Phân trang
         try:
             page = int(kwargs.get("page", 1))
