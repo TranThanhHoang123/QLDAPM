@@ -46,43 +46,67 @@ function EventForm({ initialData, onSubmit }) {
     }
 
     const handleSubmit = async (e) => {
-    e.preventDefault()
-    try {
-        const changedFields = {}
-        for (const key in form) {
-        // chỉ thêm nếu khác initialData hoặc là file
+  e.preventDefault()
+  try {
+    let payload
+
+    if (initialData.id) {
+      // === Edit mode ===
+      const changedFields = {}
+      for (const key in form) {
         if (form[key] !== initialData[key] && form[key] !== null) {
-            changedFields[key] = form[key]
+          changedFields[key] = form[key]
         }
-        }
+      }
 
-        // format datetime nếu có thay đổi
-        if (changedFields.start_time) {
+      if (changedFields.start_time) {
         changedFields.start_time = formatDateTimeLocal(form.start_time)
-        }
-        if (changedFields.end_time) {
+      }
+      if (changedFields.end_time) {
         changedFields.end_time = formatDateTimeLocal(form.end_time)
-        }
+      }
 
-        // build FormData nếu có image
-        let payload
-        if (changedFields.image) {
+      if (changedFields.image) {
         payload = new FormData()
         Object.entries(changedFields).forEach(([key, value]) => {
-            payload.append(key, value)
+          payload.append(key, value)
         })
-        } else {
+      } else {
         payload = changedFields
-        }
+      }
+    } else {
+      // === Create mode ===
+      payload = { ...form }
+      payload.start_time = formatDateTimeLocal(form.start_time)
+      payload.end_time = formatDateTimeLocal(form.end_time)
 
-        await onSubmit(payload)
-        toast.success("Lưu thành công!")
-        navigate("/admin/event")
-    } catch (err) {
-        console.error("Save failed", err)
-        toast.error("Lưu thất bại")
+      if (form.image) {
+        const fd = new FormData()
+        Object.entries(payload).forEach(([key, value]) => {
+          fd.append(key, value)
+        })
+        payload = fd
+      }
     }
+
+    // 🔥 log payload trước khi gửi
+    if (payload instanceof FormData) {
+      for (let [key, value] of payload.entries()) {
+        console.log("FormData field:", key, value)
+      }
+    } else {
+      console.log("JSON payload:", payload)
     }
+
+    await onSubmit(payload)
+    toast.success("Lưu thành công!")
+    navigate("/admin/event")
+  } catch (err) {
+    console.error("Save failed", err)
+    toast.error("Lưu thất bại")
+  }
+}
+
 
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
