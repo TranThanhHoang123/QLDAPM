@@ -3,7 +3,7 @@ from app.models import Event
 from marshmallow import fields, validate
 from flask import request
 from app.schemas.category import CategoryListSchema
-from app.models.ticket import TicketStatus, TicketType
+from app.models.ticket import TicketStatus
 
 
 # Base Schema
