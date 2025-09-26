@@ -36,7 +36,7 @@ export function UserDropdown({ isLoggedIn, user }) {
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="end" className="w-56">
+      <DropdownMenuContent align="end" className="w-56 bg-white shadow-md rounded-lg border">
         <div className="flex items-center gap-2 p-2">
           <div className="flex flex-col space-y-1 leading-none">
             {user?.name && <p className="font-medium text-sm">{user.name}</p>}
@@ -45,7 +45,7 @@ export function UserDropdown({ isLoggedIn, user }) {
             )}
           </div>
         </div>
-        <DropdownMenuSeparator />
+        <DropdownMenuSeparator/>
         <DropdownMenuItem onClick={handleViewDetails}>
           <Eye className="mr-2 h-4 w-4" />
           <span>Profile</span>

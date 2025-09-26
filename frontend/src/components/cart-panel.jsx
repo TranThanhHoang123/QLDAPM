@@ -74,38 +74,49 @@ export function CartPanel({ isOpen, onClose }) {
           ) : (
             <div className="space-y-4">
               {cartData.items.map((item) => (
-                <div key={item.id} className="bg-gray-50 rounded-lg p-4">
-                  <div className="flex justify-between items-center mb-2">
-                    <h3 className="font-medium text-gray-900 text-sm">
-                      {item.event.name}
-                    </h3>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleRemoveItem(item.id)}
-                      className="text-red-500 hover:text-red-700 h-8 w-8 flex items-center justify-center"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
+                <div key={item.id} className="bg-gray-50 rounded-lg p-4 shadow-sm">
+                  <div className="flex gap-3">
+                    {/* Hình ảnh sự kiện */}
+                    <img
+                      src={item.event.image}
+                      alt={item.event.title}
+                      className="w-16 h-16 object-cover rounded-md"
+                    />
 
-                  <Badge variant="secondary" className="mb-2">
-                    {item.ticket_type}
-                  </Badge>
+                    <div className="flex-1">
+                      <div className="flex justify-between items-start">
+                        <h3 className="font-medium text-gray-900 text-sm">
+                          {item.event.title}
+                        </h3>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleRemoveItem(item.id)}
+                          className="text-red-500 hover:text-red-700 h-8 w-8"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
 
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">
-                      Số lượng: {item.quantity}
-                    </span>
-                    <span className="text-sm font-semibold text-gray-900">
-                      {formatPrice(
-                        (item.ticket_type === "VIP" ? 150000 : 100000) *
-                          item.quantity
-                      )}
-                    </span>
+                      <p className="text-xs text-gray-500">{item.event.location}</p>
+
+                      <Badge variant="secondary" className="mt-2">
+                        {item.ticket_type}
+                      </Badge>
+
+                      <div className="flex items-center justify-between mt-2">
+                        <span className="text-sm">Số lượng: {item.quantity}</span>
+                        <span className="text-sm font-semibold text-gray-900">
+                          {formatPrice(
+                            (item.ticket_type === "VIP" ? 150000 : 100000) * item.quantity
+                          )}
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               ))}
+
             </div>
           )}
         </div>

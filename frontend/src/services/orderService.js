@@ -14,6 +14,9 @@ const orderService = {
 
   // Lấy danh sách order của user hiện tại (có thể filter theo status, payment_method, page, page_size)
   getOrderList: (params) => apiClient.get("/orders/me", { params }),
+
+  // Lấy danh sách order của user hiện tại (có thể filter theo user_id,status, payment_method, page, page_size)
+  getManagerOrderList: (params) => apiClient.get("/orders/", { params }),
 };
 
 export default orderService;

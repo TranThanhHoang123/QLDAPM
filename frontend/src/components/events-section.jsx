@@ -55,14 +55,16 @@ export function EventsSection({ categories = [], events = [], activeCategory = 0
                 {/* Ticket availability */}
                 <div className="space-y-1 text-sm mt-2">
                   {event.available_ticket_counts &&
-                    Object.entries(event.available_ticket_counts).map(([type, count]) => (
-                      <p
-                        key={type}
-                        className={count > 0 ? "text-green-600" : "text-red-500"}
-                      >
-                        {type}: {count > 0 ? `${count} vé còn lại` : "Hết vé"}
-                      </p>
-                    ))}
+                    Object.entries(event.available_ticket_counts).map(([type, info]) => (
+  <p
+    key={type}
+    className={info.count > 0 ? "text-green-600" : "text-red-500"}
+  >
+    {type}: {info.count > 0
+      ? `${info.count} vé còn lại - ${info.price.toLocaleString()} VND`
+      : "Hết vé"}
+  </p>
+))}
                 </div>
               </CardContent>
             </Card>

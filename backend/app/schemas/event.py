@@ -29,10 +29,20 @@ class EventBaseSchema(ma.SQLAlchemyAutoSchema):
         return f"{base_url}/static/{obj.image}"
 
     def get_available_ticket_counts(self, obj):
-        counts = {t.value: 0 for t in TicketType}
+        """
+        Trả về dạng:
+        {
+            "VIP": {"count": 5, "price": 150000},
+            "STANDARD": {"count": 20, "price": 100000},
+        }
+        """
+        counts = {}
         for ticket in obj.tickets:
+            t_type = ticket.type.value
+            if t_type not in counts:
+                counts[t_type] = {"count": 0, "price": float(ticket.price)}
             if ticket.status == TicketStatus.AVAILABLE:
-                counts[ticket.type.value] += 1
+                counts[t_type]["count"] += 1
         return counts
 
 

@@ -6,21 +6,21 @@ const statisticService = {
   getQuarterlyCustomerStatistic: (year) =>
     apiClient.get(`/user/stats/quarterly/${year}`),
   getYearlyCustomerStatistic: () =>
-    apiClient.get(`/user/stats/yearly/`),
+    apiClient.get(`/user/stats/yearly`),
 
   getMonthlyOrdersStatistic: (year) =>
     apiClient.get(`/orders/stats/monthly/${year}`),
   getQuarterlyOrdersStatistic: (year) =>
     apiClient.get(`/orders/stats/quarterly/${year}`),
   getYearlyOrdersStatistic: () =>
-    apiClient.get(`/orders/stats/yearly/`),
+    apiClient.get(`/orders/stats/yearly`),
 
-  getMonthlyTicketStatistic: (year) =>
+  getMonthlyTicketsStatistic: (year) =>
     apiClient.get(`/ticket/stats/monthly/${year}`),
-  getQuarterlyTicketStatistic: (year) =>
+  getQuarterlyTicketsStatistic: (year) =>
     apiClient.get(`/ticket/stats/quarterly/${year}`),
-  getYearlyTicketStatistic: () =>
-    apiClient.get(`/ticket/stats/yearly/`),
+  getYearlyTicketsStatistic: () =>
+    apiClient.get(`/ticket/stats/yearly`),
 }
 
 export default statisticService;
