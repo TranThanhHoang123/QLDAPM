@@ -4,8 +4,7 @@ import Dashboard from "./Dashboard"
 import Employee from "./Employee"
 import Category from "./Category"
 import EventDetail from "./Event/EventDetail"
-
-// Import icon từ lucide-react
+import Order from "./Order"
 import { Calendar, LayoutDashboard, Users, Folder } from "lucide-react"
 import EventNew from "./Event/EventNew"
 import AdminUser from "./Employee"
@@ -33,7 +32,7 @@ function Admin() {
             </li>
             <li style={styles.menuItem}>
               <Folder size={18} style={styles.icon} />
-              <Link to="/admin/category" style={styles.link}>Category</Link>
+              <Link to="/admin/order" style={styles.link}>Order</Link>
             </li>
           </ul>
         </nav>
@@ -51,6 +50,7 @@ function Admin() {
           <Route index element={<h2>Chào mừng đến Admin Dashboard</h2>} />
           <Route path="user" element={<AdminUser />} />
           <Route path="user/new" element={<UserForm />} />
+          <Route path="order" element={<Order />} />
         </Routes>
       </main>
     </div>

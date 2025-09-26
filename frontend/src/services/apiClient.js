@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const apiClient = axios.create({
-  baseURL: "https://qldapm-backend-latest.onrender.com", // đổi theo backend của bạn
+  baseURL: "https://qldapm-backend-latest.onrender.com",
   headers: {
     "Content-Type": "application/json",
   },
