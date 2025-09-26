@@ -190,8 +190,11 @@ function AdminEvent() {
                   </button>
                 </td>
                 <td className="border p-2">
-                  VIP: {event.available_ticket_counts?.VIP || 0} <br />
-                  STANDARD: {event.available_ticket_counts?.STANDARD || 0}
+                  VIP: {event.available_ticket_counts?.VIP?.count || 0} vé - 
+                      {event.available_ticket_counts?.VIP?.price || 0}đ
+                  <br />
+                  STANDARD: {event.available_ticket_counts?.STANDARD?.count || 0} vé - 
+                            {event.available_ticket_counts?.STANDARD?.price || 0}đ
                 </td>
               </tr>
             ))}

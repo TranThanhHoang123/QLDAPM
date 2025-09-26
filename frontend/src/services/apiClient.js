@@ -1,10 +1,9 @@
 import axios from "axios";
 
 const apiClient = axios.create({
-  baseURL: "https://qldapm-backend-latest.onrender.com",
-  headers: {
-    "Content-Type": "application/json",
-  },
+  // https://qldapm-backend-latest.onrender.com
+  // http://localhost:8080
+  baseURL: "http://localhost:8080",
 });
 
 // Request interceptor: tự động gắn token
